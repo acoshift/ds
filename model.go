@@ -116,6 +116,11 @@ func (x *StringIDModel) SetNameKey(kind string, name string) {
 	x.SetKey(datastore.NameKey(kind, name, nil))
 }
 
+// NewKey sets incomplete key to model
+func (x *StringIDModel) NewKey(kind string) {
+	x.SetKey(datastore.IncompleteKey(kind, nil))
+}
+
 // SetKey sets key to model
 func SetKey(key *datastore.Key, dst interface{}) {
 	if dst == nil || key == nil {
