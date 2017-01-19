@@ -3,29 +3,63 @@ package ds
 import (
 	"strconv"
 
+	"reflect"
+
 	"cloud.google.com/go/datastore"
 )
 
 func parseID(id string) int64 {
 	r, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		return -1
+		return 0
 	}
 	return r
 }
 
-func buildIDKeys(kind string, ids []string) []*datastore.Key {
+// BuildIDKeys builds datastore keys from id keys
+func BuildIDKeys(kind string, ids []int64) []*datastore.Key {
 	keys := make([]*datastore.Key, len(ids))
 	for i, id := range ids {
-		keys[i] = datastore.IDKey(kind, parseID(id), nil)
+		keys[i] = datastore.IDKey(kind, id, nil)
 	}
 	return keys
 }
 
-func buildNameKeys(kind string, names []string) []*datastore.Key {
+// BuildStringIDKeys builds datastore keys from string id keys
+func BuildStringIDKeys(kind string, ids []string) []*datastore.Key {
+	keys := make([]*datastore.Key, len(ids))
+	for i, id := range ids {
+		if tid := parseID(id); tid != 0 {
+			keys[i] = datastore.IDKey(kind, tid, nil)
+		}
+	}
+	return keys
+}
+
+// BuildNameKeys builds datastore keys from name keys
+func BuildNameKeys(kind string, names []string) []*datastore.Key {
 	keys := make([]*datastore.Key, len(names))
 	for i, name := range names {
 		keys[i] = datastore.NameKey(kind, name, nil)
+	}
+	return keys
+}
+
+// ExtractKey returns key from model
+func ExtractKey(src interface{}) *datastore.Key {
+	return src.(KeyGetter).Key()
+}
+
+// ExtractKeys returns keys from models
+func ExtractKeys(src interface{}) []*datastore.Key {
+	xs := reflect.ValueOf(src)
+	if xs.Kind() == reflect.Ptr {
+		xs = xs.Elem()
+	}
+	l := xs.Len()
+	keys := make([]*datastore.Key, l)
+	for i := 0; i < l; i++ {
+		keys[i] = ExtractKey(xs.Index(i))
 	}
 	return keys
 }

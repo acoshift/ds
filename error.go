@@ -1,15 +1,8 @@
 package ds
 
 import (
-	"errors"
-
 	"cloud.google.com/go/datastore"
 	"google.golang.org/api/iterator"
-)
-
-// Errors
-var (
-	ErrInvalidID = errors.New("ds: invalid id")
 )
 
 // NotFound checks is error means not found
@@ -23,16 +16,16 @@ func FieldMismatch(err error) bool {
 	return ok
 }
 
-// IgnoreFieldMismatch returns nil if err is field mismatch error(s)
-func IgnoreFieldMismatch(err error) error {
-	if FieldMismatch(err) {
+// Ignore removes error(s) from err if f(err)
+func Ignore(err error, f func(error) bool) error {
+	if f(err) {
 		return nil
 	}
 
 	if errs, ok := err.(datastore.MultiError); ok {
 		es := make(datastore.MultiError, 0)
 		for _, err := range errs {
-			if !FieldMismatch(err) {
+			if !f(err) {
 				es = append(es, err)
 			}
 		}
@@ -44,23 +37,12 @@ func IgnoreFieldMismatch(err error) error {
 	return err
 }
 
+// IgnoreFieldMismatch returns nil if err is field mismatch error(s)
+func IgnoreFieldMismatch(err error) error {
+	return Ignore(err, FieldMismatch)
+}
+
 // IgnoreNotFound returns nil if err is not found error(s)
 func IgnoreNotFound(err error) error {
-	if NotFound(err) {
-		return nil
-	}
-
-	if errs, ok := err.(datastore.MultiError); ok {
-		es := make(datastore.MultiError, 0)
-		for _, err := range errs {
-			if !NotFound(err) {
-				es = append(es, err)
-			}
-		}
-		if len(es) > 0 {
-			return es
-		}
-		return nil
-	}
-	return err
+	return Ignore(err, NotFound)
 }

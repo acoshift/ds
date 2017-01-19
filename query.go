@@ -12,8 +12,8 @@ type Query func(q *datastore.Query) *datastore.Query
 
 // Query run Get All
 // dst is *[]*Model
-func (client *Client) Query(ctx context.Context, kind KindGetter, dst interface{}, qs ...Query) error {
-	q := datastore.NewQuery(kind.Kind())
+func (client *Client) Query(ctx context.Context, kind string, dst interface{}, qs ...Query) error {
+	q := datastore.NewQuery(kind)
 	for _, setter := range qs {
 		q = setter(q)
 	}
@@ -27,8 +27,8 @@ func (client *Client) Query(ctx context.Context, kind KindGetter, dst interface{
 }
 
 // QueryFirst run Get to get the first result
-func (client *Client) QueryFirst(ctx context.Context, dst interface{}, qs ...Query) error {
-	q := datastore.NewQuery(dst.(KindGetter).Kind())
+func (client *Client) QueryFirst(ctx context.Context, kind string, dst interface{}, qs ...Query) error {
+	q := datastore.NewQuery(kind)
 	for _, setter := range qs {
 		q = setter(q)
 	}
@@ -43,8 +43,8 @@ func (client *Client) QueryFirst(ctx context.Context, dst interface{}, qs ...Que
 }
 
 // QueryKeys queries only key
-func (client *Client) QueryKeys(ctx context.Context, kind KindGetter, qs ...Query) ([]*datastore.Key, error) {
-	q := datastore.NewQuery(kind.Kind())
+func (client *Client) QueryKeys(ctx context.Context, kind string, qs ...Query) ([]*datastore.Key, error) {
+	q := datastore.NewQuery(kind)
 	for _, setter := range qs {
 		q = setter(q)
 	}
