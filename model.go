@@ -1,7 +1,10 @@
 package ds
 
-import "cloud.google.com/go/datastore"
-import "strconv"
+import (
+	"strconv"
+
+	"cloud.google.com/go/datastore"
+)
 
 // Model is the base model
 // every model should have this Model

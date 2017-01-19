@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"cloud.google.com/go/datastore"
-
 	"google.golang.org/api/iterator"
 )
 
