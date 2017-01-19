@@ -33,7 +33,10 @@ func SetCommitKey(commit *datastore.Commit, pendingKey *datastore.PendingKey, ds
 
 // SetCommitKeys sets commit pending keys to models
 func SetCommitKeys(commit *datastore.Commit, pendingKeys []*datastore.PendingKey, dst interface{}) {
-	xs := reflect.ValueOf(dst).Elem()
+	xs := reflect.ValueOf(dst)
+	if xs.Kind() == reflect.Ptr {
+		xs = xs.Elem()
+	}
 	for i := 0; i < xs.Len(); i++ {
 		if x, ok := xs.Index(i).Interface().(KeySetter); ok {
 			x.SetKey(commit.Key(pendingKeys[i]))
