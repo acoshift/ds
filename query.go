@@ -129,3 +129,10 @@ func Project(fieldNames ...string) Query {
 		return q.Project(fieldNames...)
 	}
 }
+
+// Transaction adds transaction to query
+func Transaction(t *datastore.Transaction) Query {
+	return func(q *datastore.Query) *datastore.Query {
+		return q.Transaction(t)
+	}
+}
