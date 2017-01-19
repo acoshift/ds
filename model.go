@@ -106,6 +106,9 @@ func (x *StringIDModel) SetNameKey(kind string, name string) {
 
 // SetKey sets key to model
 func SetKey(key *datastore.Key, dst interface{}) {
+	if dst == nil || key == nil {
+		return
+	}
 	if x, ok := dst.(KeySetter); ok {
 		x.SetKey(key)
 	}
@@ -113,6 +116,9 @@ func SetKey(key *datastore.Key, dst interface{}) {
 
 // SetKeys sets keys to models
 func SetKeys(keys []*datastore.Key, dst interface{}) {
+	if dst == nil || keys == nil {
+		return
+	}
 	xs := reflect.ValueOf(dst)
 	if xs.Kind() == reflect.Ptr {
 		xs = xs.Elem()
