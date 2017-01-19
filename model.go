@@ -34,6 +34,16 @@ func (x *Model) SetKey(key *datastore.Key) {
 	}
 }
 
+// SetIDKey sets id to model
+func (x *Model) SetIDKey(id string) {
+	x.SetKey(datastore.IDKey(interface{}(x).(KindGetter).Kind(), parseID(id), nil))
+}
+
+// SetNameKey sets id to model
+func (x *Model) SetNameKey(name string) {
+	x.SetKey(datastore.NameKey(interface{}(x).(KindGetter).Kind(), name, nil))
+}
+
 // KeyGetter interface
 type KeyGetter interface {
 	Key() *datastore.Key
