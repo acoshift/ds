@@ -29,11 +29,31 @@ func IgnoreFieldMismatch(err error) error {
 		return nil
 	}
 
-	// check is multi errors
 	if errs, ok := err.(datastore.MultiError); ok {
 		es := make(datastore.MultiError, 0)
 		for _, err := range errs {
 			if !FieldMismatch(err) {
+				es = append(es, err)
+			}
+		}
+		if len(es) > 0 {
+			return es
+		}
+		return nil
+	}
+	return err
+}
+
+// IgnoreNotFound returns nil if err is not found error(s)
+func IgnoreNotFound(err error) error {
+	if NotFound(err) {
+		return nil
+	}
+
+	if errs, ok := err.(datastore.MultiError); ok {
+		es := make(datastore.MultiError, 0)
+		for _, err := range errs {
+			if !NotFound(err) {
 				es = append(es, err)
 			}
 		}

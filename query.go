@@ -19,10 +19,10 @@ func (client *Client) Query(ctx context.Context, kind KindGetter, dst interface{
 	}
 
 	keys, err := client.GetAll(ctx, q, dst)
+	SetKeys(keys, dst)
 	if err != nil {
 		return err
 	}
-	SetKeys(keys, dst)
 	return nil
 }
 
@@ -34,13 +34,11 @@ func (client *Client) QueryFirst(ctx context.Context, dst interface{}, qs ...Que
 	}
 
 	key, err := client.Run(ctx, q).Next(dst)
+	SetKey(key, dst)
 	if err != nil {
 		return err
 	}
 
-	if x, ok := dst.(KeySetter); ok {
-		x.SetKey(key)
-	}
 	return nil
 }
 

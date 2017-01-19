@@ -35,13 +35,13 @@ func (x *Model) SetKey(key *datastore.Key) {
 }
 
 // SetIDKey sets id to model
-func (x *Model) SetIDKey(id string) {
-	x.SetKey(datastore.IDKey(interface{}(x).(KindGetter).Kind(), parseID(id), nil))
+func (x *Model) SetIDKey(kind KindGetter, id string) {
+	x.SetKey(datastore.IDKey(kind.Kind(), parseID(id), nil))
 }
 
 // SetNameKey sets id to model
-func (x *Model) SetNameKey(name string) {
-	x.SetKey(datastore.NameKey(interface{}(x).(KindGetter).Kind(), name, nil))
+func (x *Model) SetNameKey(kind KindGetter, name string) {
+	x.SetKey(datastore.NameKey(kind.Kind(), name, nil))
 }
 
 // KeyGetter interface

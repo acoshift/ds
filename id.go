@@ -9,7 +9,7 @@ import (
 func parseID(id string) int64 {
 	r, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		return 0
+		return -1
 	}
 	return r
 }
