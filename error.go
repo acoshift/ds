@@ -7,7 +7,7 @@ import (
 
 // NotFound checks is error means not found
 func NotFound(err error) bool {
-	return err == iterator.Done || err == datastore.ErrNoSuchEntity
+	return err == iterator.Done || err == datastore.ErrNoSuchEntity || err == datastore.ErrInvalidKey
 }
 
 // FieldMismatch checks is error field mismatch
