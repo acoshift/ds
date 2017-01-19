@@ -49,6 +49,6 @@ func (client *Client) SaveMulti(ctx context.Context, src interface{}) error {
 	if err != nil {
 		return err
 	}
-	setKeys(keys, src)
+	SetKeys(keys, src)
 	return nil
 }

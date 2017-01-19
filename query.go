@@ -22,7 +22,7 @@ func (client *Client) Query(ctx context.Context, kind KindGetter, dst interface{
 	if err != nil {
 		return err
 	}
-	setKeys(keys, dst)
+	SetKeys(keys, dst)
 	return nil
 }
 
