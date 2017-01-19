@@ -27,8 +27,8 @@ func (client *Client) Query(ctx context.Context, kind KindGetter, dst interface{
 }
 
 // QueryFirst run Get to get the first result
-func (client *Client) QueryFirst(ctx context.Context, kind KindGetter, dst interface{}, qs ...Query) error {
-	q := datastore.NewQuery(kind.Kind())
+func (client *Client) QueryFirst(ctx context.Context, dst interface{}, qs ...Query) error {
+	q := datastore.NewQuery(dst.(KindGetter).Kind())
 	for _, setter := range qs {
 		q = setter(q)
 	}
