@@ -32,11 +32,17 @@ type Model struct {
 
 // Key returns key from model
 func (x *Model) Key() *datastore.Key {
+	if x == nil {
+		return nil
+	}
 	return x.key
 }
 
 // SetKey sets model key to given key
 func (x *Model) SetKey(key *datastore.Key) {
+	if x == nil {
+		return
+	}
 	x.key = key
 	if key == nil {
 		x.ID = 0
@@ -64,12 +70,18 @@ type StringIDModel struct {
 
 // Key returns key from model
 func (x *StringIDModel) Key() *datastore.Key {
+	if x == nil {
+		return nil
+	}
 	return x.key
 }
 
 // SetKey sets model key to given key
 // if key is not name key, it will use id key
 func (x *StringIDModel) SetKey(key *datastore.Key) {
+	if x == nil {
+		return
+	}
 	x.key = key
 	x.ID = ""
 	if key == nil {
@@ -124,7 +136,11 @@ func SetKeys(keys []*datastore.Key, dst interface{}) {
 		xs = xs.Elem()
 	}
 	for i := 0; i < xs.Len(); i++ {
-		if x, ok := xs.Index(i).Interface().(KeySetter); ok {
+		x := xs.Index(i)
+		if x.IsNil() {
+			continue
+		}
+		if x, ok := x.Interface().(KeySetter); ok {
 			x.SetKey(keys[i])
 		}
 	}
