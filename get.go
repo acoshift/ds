@@ -7,17 +7,36 @@ import (
 	"cloud.google.com/go/datastore"
 )
 
-func setKey(key *datastore.Key, dst interface{}) {
+// SetKey sets key to model
+func SetKey(key *datastore.Key, dst interface{}) {
 	if x, ok := dst.(KeySetter); ok {
 		x.SetKey(key)
 	}
 }
 
-func setKeys(keys []*datastore.Key, dst interface{}) {
+// SetKeys sets keys to models
+func SetKeys(keys []*datastore.Key, dst interface{}) {
 	xs := reflect.ValueOf(dst).Elem()
 	for i := 0; i < xs.Len(); i++ {
 		if x, ok := xs.Index(i).Interface().(KeySetter); ok {
 			x.SetKey(keys[i])
+		}
+	}
+}
+
+// SetCommitKey sets commit pending key to model
+func SetCommitKey(commit *datastore.Commit, pendingKey *datastore.PendingKey, dst interface{}) {
+	if x, ok := dst.(KeySetter); ok {
+		x.SetKey(commit.Key(pendingKey))
+	}
+}
+
+// SetCommitKeys sets commit pending keys to models
+func SetCommitKeys(commit *datastore.Commit, pendingKeys []*datastore.PendingKey, dst interface{}) {
+	xs := reflect.ValueOf(dst).Elem()
+	for i := 0; i < xs.Len(); i++ {
+		if x, ok := xs.Index(i).Interface().(KeySetter); ok {
+			x.SetKey(commit.Key(pendingKeys[i]))
 		}
 	}
 }
@@ -28,7 +47,7 @@ func (client *Client) GetByKey(ctx context.Context, key *datastore.Key, dst inte
 	if err != nil {
 		return err
 	}
-	setKey(key, dst)
+	SetKey(key, dst)
 	return nil
 }
 
@@ -38,7 +57,7 @@ func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst 
 	if err != nil {
 		return err
 	}
-	setKeys(keys, dst)
+	SetKeys(keys, dst)
 	return nil
 }
 
@@ -70,6 +89,6 @@ func (client *Client) GetByQuery(ctx context.Context, q *datastore.Query, dst in
 	if err != nil {
 		return err
 	}
-	setKeys(keys, dst)
+	SetKeys(keys, dst)
 	return nil
 }
