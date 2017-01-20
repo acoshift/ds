@@ -66,6 +66,15 @@ func Filter(filterStr string, value interface{}) Query {
 	}
 }
 
+// CreateBefore quries is model created after (or equals) given time
+func CreateBefore(t time.Time, equals bool) Query {
+	p := "CreatedAt <"
+	if equals {
+		p += "="
+	}
+	return Filter(p, t)
+}
+
 // CreateAfter quries is model created after (or equals) given time
 func CreateAfter(t time.Time, equals bool) Query {
 	p := "CreatedAt >"
