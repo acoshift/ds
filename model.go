@@ -27,7 +27,7 @@ type KeyGetSetter interface {
 // Model is the base model which id is int64
 type Model struct {
 	key *datastore.Key
-	ID  int64 `datastore:"-"`
+	id  int64
 }
 
 // Key returns key from model
@@ -45,15 +45,20 @@ func (x *Model) SetKey(key *datastore.Key) {
 	}
 	x.key = key
 	if key == nil {
-		x.ID = 0
+		x.id = 0
 		return
 	}
-	x.ID = key.ID
+	x.id = key.ID
 }
 
 // SetID sets id key to model
 func (x *Model) SetID(kind string, id int64) {
 	x.SetKey(datastore.IDKey(kind, id, nil))
+}
+
+// GetID returns id
+func (x *Model) GetID() int64 {
+	return x.id
 }
 
 // NewKey sets incomplete key to model
@@ -65,7 +70,7 @@ func (x *Model) NewKey(kind string) {
 // but can use both id key and name key
 type StringIDModel struct {
 	key *datastore.Key
-	ID  string `datastore:"-"`
+	id  string
 }
 
 // Key returns key from model
@@ -83,16 +88,16 @@ func (x *StringIDModel) SetKey(key *datastore.Key) {
 		return
 	}
 	x.key = key
-	x.ID = ""
+	x.id = ""
 	if key == nil {
 		return
 	}
 	if key.Name != "" {
-		x.ID = key.Name
+		x.id = key.Name
 		return
 	}
 	if key.ID != 0 {
-		x.ID = strconv.FormatInt(key.ID, 10)
+		x.id = strconv.FormatInt(key.ID, 10)
 	}
 }
 
@@ -119,6 +124,11 @@ func (x *StringIDModel) SetNameKey(kind string, name string) {
 // NewKey sets incomplete key to model
 func (x *StringIDModel) NewKey(kind string) {
 	x.SetKey(datastore.IncompleteKey(kind, nil))
+}
+
+// GetID return id
+func (x *StringIDModel) GetID() string {
+	return x.id
 }
 
 // SetKey sets key to model
