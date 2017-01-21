@@ -58,6 +58,9 @@ func (x *Model) SetID(kind string, id int64) {
 
 // GetID returns id
 func (x *Model) GetID() int64 {
+	if x == nil {
+		return 0
+	}
 	return x.id
 }
 
@@ -128,6 +131,9 @@ func (x *StringIDModel) NewKey(kind string) {
 
 // GetID return id
 func (x *StringIDModel) GetID() string {
+	if x == nil {
+		return ""
+	}
 	return x.id
 }
 
