@@ -1,13 +1,11 @@
-package ds_test
+package ds
 
 import (
 	"context"
 	"encoding/base64"
 	"os"
-	"testing"
 
 	"cloud.google.com/go/datastore"
-	. "github.com/acoshift/ds"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 )
@@ -39,27 +37,4 @@ func initClient() (*Client, error) {
 		projectID = "acoshift-test"
 	}
 	return NewClient(context.Background(), projectID, opts...)
-}
-
-func TestSave(t *testing.T) {
-	ctx := context.Background()
-	client, err := initClient()
-	if err != nil {
-		t.Fatal(err)
-	}
-	x := &ExampleModel{Name: "Test1", Value: 1}
-	err = client.Save(ctx, "ExampleModel", x)
-	if err != nil {
-		t.Error(err)
-	}
-	if x.Key() == nil {
-		t.Errorf("expetect key to be assigned")
-	}
-	if x.ID() == 0 {
-		t.Errorf("expected id to be assigned")
-	}
-	err = client.DeleteByID(ctx, "ExampleModel", x.ID())
-	if err != nil {
-		t.Error(err)
-	}
 }

@@ -27,10 +27,10 @@ func BuildIDKeys(kind string, ids []int64) []*datastore.Key {
 
 // BuildStringIDKeys builds datastore keys from string id keys
 func BuildStringIDKeys(kind string, ids []string) []*datastore.Key {
-	keys := make([]*datastore.Key, len(ids))
-	for i, id := range ids {
+	keys := make([]*datastore.Key, 0, len(ids))
+	for _, id := range ids {
 		if tid := parseID(id); tid != 0 {
-			keys[i] = datastore.IDKey(kind, tid, nil)
+			keys = append(keys, datastore.IDKey(kind, tid, nil))
 		}
 	}
 	return keys
@@ -59,7 +59,7 @@ func ExtractKeys(src interface{}) []*datastore.Key {
 	l := xs.Len()
 	keys := make([]*datastore.Key, l)
 	for i := 0; i < l; i++ {
-		keys[i] = ExtractKey(xs.Index(i))
+		keys[i] = ExtractKey(xs.Index(i).Interface())
 	}
 	return keys
 }

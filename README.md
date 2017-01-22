@@ -7,5 +7,6 @@
 
 Google Cloud Datastore helper library for Golang
 
-See godoc for more detail
+Supports Go 1.7+
 
+See godoc for more detail
