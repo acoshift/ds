@@ -21,9 +21,9 @@ func beforeSave(kind string, src interface{}) {
 	}
 }
 
-// Save saves model to datastore
+// SaveModel saves model to datastore
 // kind is optional
-func (client *Client) Save(ctx context.Context, kind string, src interface{}) error {
+func (client *Client) SaveModel(ctx context.Context, kind string, src interface{}) error {
 	beforeSave(kind, src)
 
 	x := src.(KeyGetSetter)
@@ -35,8 +35,8 @@ func (client *Client) Save(ctx context.Context, kind string, src interface{}) er
 	return nil
 }
 
-// SaveMulti saves models to datastore
-func (client *Client) SaveMulti(ctx context.Context, kind string, src interface{}) error {
+// SaveModels saves models to datastore
+func (client *Client) SaveModels(ctx context.Context, kind string, src interface{}) error {
 	xs := reflect.ValueOf(src)
 	keys := make([]*datastore.Key, xs.Len())
 	for i := range keys {
