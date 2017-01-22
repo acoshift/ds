@@ -104,8 +104,8 @@ func (x *StringIDModel) SetKey(key *datastore.Key) {
 	}
 }
 
-// SetIDKey sets id key to model
-func (x *StringIDModel) SetIDKey(kind string, id int64) {
+// SetID sets id to model
+func (x *StringIDModel) SetID(kind string, id int64) {
 	if id == 0 {
 		// invalid key
 		// if set id key to 0, datastore server will throw error, which we can not handle
@@ -114,13 +114,13 @@ func (x *StringIDModel) SetIDKey(kind string, id int64) {
 	x.SetKey(datastore.IDKey(kind, id, nil))
 }
 
-// SetStringIDKey sets string id key to model
-func (x *StringIDModel) SetStringIDKey(kind string, id string) {
-	x.SetIDKey(kind, parseID(id))
+// SetStringID sets string id to model
+func (x *StringIDModel) SetStringID(kind string, id string) {
+	x.SetID(kind, parseID(id))
 }
 
-// SetNameKey sets id to model
-func (x *StringIDModel) SetNameKey(kind string, name string) {
+// SetNameID sets name id to model
+func (x *StringIDModel) SetNameID(kind string, name string) {
 	x.SetKey(datastore.NameKey(kind, name, nil))
 }
 

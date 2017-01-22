@@ -1,6 +1,8 @@
 package ds
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestParseID(t *testing.T) {
 	cases := []struct {
