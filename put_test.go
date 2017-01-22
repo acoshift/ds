@@ -34,3 +34,38 @@ func TestPutModel(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestPutModels(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping put model")
+	}
+	ctx := context.Background()
+	client, err := initClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	xs := []*ExampleModel{
+		&ExampleModel{Name: "Test1", Value: 1},
+		&ExampleModel{Name: "Test2", Value: 2},
+	}
+	err = client.PutModels(ctx, xs)
+	if err == nil {
+		t.Errorf("expected error not nil")
+	}
+	for i, x := range xs {
+		x.SetID("Test", int64(i+100))
+	}
+	err = client.PutModels(ctx, xs)
+	if err != nil {
+		t.Error(err)
+	}
+	for _, x := range xs {
+		if !x.CreatedAt.IsZero() || !x.UpdatedAt.IsZero() {
+			t.Errorf("expetect stamp model not assigned")
+		}
+	}
+	err = client.DeleteModels(ctx, xs)
+	if err != nil {
+		t.Error(err)
+	}
+}

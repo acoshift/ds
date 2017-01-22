@@ -187,8 +187,13 @@ func SetCommitKeys(commit *datastore.Commit, pendingKeys []*datastore.PendingKey
 	}
 }
 
-// SetIDKeys sets id keys to models
-func SetIDKeys(kind string, ids []int64, dst interface{}) {
+// SetID sets id to model
+func SetID(kind string, id int64, dst interface{}) {
+	SetKey(datastore.IDKey(kind, id, nil), dst)
+}
+
+// SetIDs sets ids to models
+func SetIDs(kind string, ids []int64, dst interface{}) {
 	keys := make([]*datastore.Key, len(ids))
 	for i := range ids {
 		keys[i] = datastore.IDKey(kind, ids[i], nil)
@@ -196,11 +201,29 @@ func SetIDKeys(kind string, ids []int64, dst interface{}) {
 	SetKeys(keys, dst)
 }
 
-// SetStringIDKeys sets string id keys to models
-func SetStringIDKeys(kind string, ids []string, dst interface{}) {
+// SetStringID sets string id to model
+func SetStringID(kind string, id string, dst interface{}) {
+	tid := parseID(id)
+	if tid == 0 {
+		return
+	}
+	SetKey(datastore.IDKey(kind, tid, nil), dst)
+}
+
+// SetStringIDs sets string id to models
+func SetStringIDs(kind string, ids []string, dst interface{}) {
 	keys := make([]*datastore.Key, len(ids))
 	for i := range ids {
-		keys[i] = datastore.NameKey(kind, ids[i], nil)
+		keys[i] = datastore.IDKey(kind, parseID(ids[i]), nil)
+	}
+	SetKeys(keys, dst)
+}
+
+// SetNameIDs sets name id to models
+func SetNameIDs(kind string, names []string, dst interface{}) {
+	keys := make([]*datastore.Key, len(names))
+	for i := range names {
+		keys[i] = datastore.NameKey(kind, names[i], nil)
 	}
 	SetKeys(keys, dst)
 }

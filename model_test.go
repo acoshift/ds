@@ -3,6 +3,8 @@ package ds
 import (
 	"testing"
 
+	"fmt"
+
 	"cloud.google.com/go/datastore"
 )
 
@@ -149,7 +151,7 @@ func TestSetKeys(t *testing.T) {
 	}
 }
 
-func TestIDKeys(t *testing.T) {
+func TestSetIDs(t *testing.T) {
 	xs := []interface{}{
 		&Model{},
 		Model{},
@@ -163,6 +165,87 @@ func TestIDKeys(t *testing.T) {
 	for i := range xs {
 		ids[i] = int64(i + 1)
 	}
-	SetIDKeys("Test", ids, xs)
-	SetIDKeys("Test", ids, &xs)
+	validate := func() {
+		for i := range xs {
+			if x, ok := xs[i].(KeyGetter); ok {
+				if x.Key().ID != ids[i] {
+					t.Errorf("expected id to be %d; got %d", ids[i], x.Key().ID)
+				}
+			}
+		}
+	}
+	SetIDs("Test", ids, xs)
+	validate()
+
+	xs = []interface{}{
+		&Model{},
+		Model{},
+		nil,
+		ExampleModel{},
+		&ExampleModel{},
+		ExampleNotModel{},
+		&ExampleNotModel{},
+	}
+	SetIDs("Test", ids, &xs)
+	validate()
+}
+
+func TestSetStringIDs(t *testing.T) {
+	xs := []interface{}{
+		&Model{},
+		Model{},
+		nil,
+		ExampleModel{},
+		&ExampleModel{},
+		ExampleNotModel{},
+		&ExampleNotModel{},
+	}
+	ids := make([]string, len(xs))
+	for i := range xs {
+		ids[i] = fmt.Sprintf("%d", i+1)
+	}
+	validate := func() {
+		for i := range xs {
+			if x, ok := xs[i].(KeyGetter); ok {
+				if x.Key().ID != parseID(ids[i]) {
+					t.Errorf("expected id to be %s; got %d", ids[i], x.Key().ID)
+				}
+			}
+		}
+	}
+	SetStringIDs("Test", ids, xs)
+	validate()
+
+	SetStringIDs("Test", ids, &xs)
+	validate()
+}
+
+func TestSetNameIDs(t *testing.T) {
+	xs := []interface{}{
+		&Model{},
+		Model{},
+		nil,
+		ExampleModel{},
+		&ExampleModel{},
+		ExampleNotModel{},
+		&ExampleNotModel{},
+	}
+	ids := make([]string, len(xs))
+	for i := range xs {
+		ids[i] = fmt.Sprintf("test%d", i+1)
+	}
+	validate := func() {
+		for i := range xs {
+			if x, ok := xs[i].(KeyGetter); ok {
+				if x.Key().ID != parseID(ids[i]) {
+					t.Errorf("expected id to be %s; got %d", ids[i], x.Key().ID)
+				}
+			}
+		}
+	}
+	SetNameIDs("Test", ids, xs)
+	validate()
+
+	SetNameIDs("Test", ids, &xs)
+	validate()
 }
