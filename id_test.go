@@ -95,3 +95,20 @@ func TestExtractKeys(t *testing.T) {
 		}
 	}
 }
+
+func TestExtractKeysPtr(t *testing.T) {
+	xs := make([]*ExampleModel, 10)
+	for i := range xs {
+		xs[i] = &ExampleModel{}
+		xs[i].SetID("Test", int64(i))
+	}
+	keys := ExtractKeys(&xs)
+	for i, key := range keys {
+		if key == nil {
+			t.Errorf("expected key not nil")
+		}
+		if key.ID != int64(i) {
+			t.Errorf("expected key id to be %d; got %d", i, key.ID)
+		}
+	}
+}

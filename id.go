@@ -1,9 +1,8 @@
 package ds
 
 import (
-	"strconv"
-
 	"reflect"
+	"strconv"
 
 	"cloud.google.com/go/datastore"
 )
