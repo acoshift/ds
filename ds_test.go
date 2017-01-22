@@ -17,6 +17,10 @@ type ExampleModel struct {
 	Value int
 }
 
+type ExampleNotModel struct {
+	Name string
+}
+
 func initClient() (*Client, error) {
 	// load service account from env
 	serviceAccountStr := os.Getenv("service_account")

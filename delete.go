@@ -68,3 +68,21 @@ func (client *Client) DeleteByNames(ctx context.Context, kind string, names []st
 	}
 	return client.DeleteMulti(ctx, keys)
 }
+
+// DeleteModel deletes data by get key from model
+func (client *Client) DeleteModel(ctx context.Context, src interface{}) error {
+	key := ExtractKey(src)
+	if key == nil {
+		return datastore.ErrInvalidKey
+	}
+	return client.Delete(ctx, key)
+}
+
+// DeleteModels deletes data by get keys from models
+func (client *Client) DeleteModels(ctx context.Context, src interface{}) error {
+	keys := ExtractKeys(src)
+	if len(keys) == 0 {
+		return datastore.ErrInvalidKey
+	}
+	return client.DeleteMulti(ctx, keys)
+}

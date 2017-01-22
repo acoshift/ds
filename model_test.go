@@ -99,3 +99,70 @@ func TestStringIDModel(t *testing.T) {
 		t.Errorf("expected id to be %s; got %s", "aaa", x.ID())
 	}
 }
+
+func TestSetKey(t *testing.T) {
+	x := &Model{}
+	key := datastore.IDKey("Test", 1, nil)
+	SetKey(nil, nil)
+	SetKey(nil, x)
+	SetKey(key, nil)
+	SetKey(key, x)
+	if x.Key() == nil {
+		t.Errorf("expected key not nil")
+	}
+	y := Model{}
+	// Set to unpointer should not have side-effect
+	SetKey(key, y)
+	if y.Key() != nil {
+		t.Errorf("expected key to be nil")
+	}
+}
+
+func TestSetKeys(t *testing.T) {
+	xs := []interface{}{
+		&Model{},
+		Model{},
+		nil,
+		ExampleModel{},
+		&ExampleModel{},
+		ExampleNotModel{},
+		&ExampleNotModel{},
+	}
+	keys := make([]*datastore.Key, len(xs))
+	for i := range xs {
+		keys[i] = datastore.IDKey("Test", int64(i), nil)
+	}
+	SetKeys(nil, nil)
+	SetKeys(keys, nil)
+	SetKeys(nil, xs)
+	SetKeys(keys, xs)
+	SetKeys(keys, &xs)
+	for i := range xs {
+		if x, ok := xs[i].(KeyGetter); ok {
+			if x.Key() == nil {
+				t.Errorf("expected key not nil")
+			}
+			if x.Key() != keys[i] {
+				t.Errorf("wrong key")
+			}
+		}
+	}
+}
+
+func TestIDKeys(t *testing.T) {
+	xs := []interface{}{
+		&Model{},
+		Model{},
+		nil,
+		ExampleModel{},
+		&ExampleModel{},
+		ExampleNotModel{},
+		&ExampleNotModel{},
+	}
+	ids := make([]int64, len(xs))
+	for i := range xs {
+		ids[i] = int64(i + 1)
+	}
+	SetIDKeys("Test", ids, xs)
+	SetIDKeys("Test", ids, &xs)
+}
