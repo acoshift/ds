@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"os"
+	"testing"
 
 	"cloud.google.com/go/datastore"
 	"golang.org/x/oauth2/google"
@@ -41,4 +42,14 @@ func initClient() (*Client, error) {
 		projectID = "acoshift-test"
 	}
 	return NewClient(context.Background(), projectID, opts...)
+}
+
+func TestInvalidNewClient(t *testing.T) {
+	client, err := NewClient(context.Background(), "invalid-project-id", option.WithServiceAccountFile("invalid-file"))
+	if err == nil {
+		t.Errorf("expected error not nil")
+	}
+	if client != nil {
+		t.Errorf("expected client to be nil")
+	}
 }
