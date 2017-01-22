@@ -53,3 +53,23 @@ func TestInvalidNewClient(t *testing.T) {
 		t.Errorf("expected client to be nil")
 	}
 }
+
+func prepareData(client *Client) []*datastore.Key {
+	xs := []*ExampleModel{
+		&ExampleModel{Name: "name1", Value: 1},
+		&ExampleModel{Name: "name2", Value: 2},
+		&ExampleModel{Name: "name3", Value: 3},
+		&ExampleModel{Name: "name4", Value: 4},
+		&ExampleModel{Name: "name5", Value: 5},
+		&ExampleModel{Name: "name6", Value: 6},
+		&ExampleModel{Name: "name7", Value: 7},
+	}
+	client.SaveModels(context.Background(), "Test", xs)
+	return ExtractKeys(xs)
+}
+
+func removeData(client *Client) {
+	ctx := context.Background()
+	keys, _ := client.QueryKeys(ctx, "Test")
+	client.DeleteMulti(ctx, keys)
+}
