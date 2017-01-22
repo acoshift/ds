@@ -2,16 +2,14 @@ package ds_test
 
 import (
 	"context"
-	"log"
+	"encoding/base64"
 	"os"
 	"testing"
 
 	"cloud.google.com/go/datastore"
-
-	"google.golang.org/api/option"
-
 	. "github.com/acoshift/ds"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
 )
 
 type ExampleModel struct {
@@ -23,11 +21,14 @@ type ExampleModel struct {
 
 func initClient() (*Client, error) {
 	// load service account from env
-	serviceAccount := os.Getenv("service_account")
-	log.Println(serviceAccount)
+	serviceAccountStr := os.Getenv("service_account")
 	opts := []option.ClientOption{}
-	if serviceAccount != "" {
-		cfg, err := google.JWTConfigFromJSON([]byte(serviceAccount), datastore.ScopeDatastore)
+	if serviceAccountStr != "" {
+		serviceAccount, err := base64.StdEncoding.DecodeString(serviceAccountStr)
+		if err != nil {
+			return nil, err
+		}
+		cfg, err := google.JWTConfigFromJSON(serviceAccount, datastore.ScopeDatastore)
 		if err != nil {
 			return nil, err
 		}
