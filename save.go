@@ -2,7 +2,6 @@ package ds
 
 import (
 	"context"
-	"reflect"
 
 	"cloud.google.com/go/datastore"
 )
@@ -22,7 +21,8 @@ func beforeSave(kind string, src interface{}) {
 }
 
 // SaveModel saves model to datastore
-// kind is optional
+// kind is optional, if key already set
+// if key was not set in model, will call NewKey with given kind
 func (client *Client) SaveModel(ctx context.Context, kind string, src interface{}) error {
 	beforeSave(kind, src)
 
@@ -36,8 +36,9 @@ func (client *Client) SaveModel(ctx context.Context, kind string, src interface{
 }
 
 // SaveModels saves models to datastore
+// see more in SaveModel
 func (client *Client) SaveModels(ctx context.Context, kind string, src interface{}) error {
-	xs := reflect.ValueOf(src)
+	xs := valueOf(src)
 	keys := make([]*datastore.Key, xs.Len())
 	for i := range keys {
 		x := xs.Index(i).Interface()

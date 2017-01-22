@@ -1,7 +1,6 @@
 package ds
 
 import (
-	"reflect"
 	"strconv"
 
 	"cloud.google.com/go/datastore"
@@ -152,10 +151,7 @@ func SetKeys(keys []*datastore.Key, dst interface{}) {
 	if dst == nil || keys == nil {
 		return
 	}
-	xs := reflect.ValueOf(dst)
-	if xs.Kind() == reflect.Ptr {
-		xs = xs.Elem()
-	}
+	xs := valueOf(dst)
 	for i := 0; i < xs.Len(); i++ {
 		x := xs.Index(i)
 		if x.IsNil() {
@@ -179,10 +175,7 @@ func SetCommitKey(commit *datastore.Commit, pendingKey *datastore.PendingKey, ds
 
 // SetCommitKeys sets commit pending keys to models
 func SetCommitKeys(commit *datastore.Commit, pendingKeys []*datastore.PendingKey, dst interface{}) {
-	xs := reflect.ValueOf(dst)
-	if xs.Kind() == reflect.Ptr {
-		xs = xs.Elem()
-	}
+	xs := valueOf(dst)
 	for i := 0; i < xs.Len(); i++ {
 		x := xs.Index(i)
 		if x.IsNil() {

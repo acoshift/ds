@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-func TestSave(t *testing.T) {
+func TestSaveModel(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping save")
+		t.Skip("skipping save model")
 	}
 	ctx := context.Background()
 	client, err := initClient()
@@ -34,9 +34,9 @@ func TestSave(t *testing.T) {
 	}
 }
 
-func TestSaveMulti(t *testing.T) {
+func TestSaveModels(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping save multi")
+		t.Skip("skipping save models")
 	}
 	ctx := context.Background()
 	client, err := initClient()

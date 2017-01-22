@@ -1,7 +1,6 @@
 package ds
 
 import (
-	"reflect"
 	"strconv"
 
 	"cloud.google.com/go/datastore"
@@ -51,10 +50,7 @@ func ExtractKey(src interface{}) *datastore.Key {
 
 // ExtractKeys returns keys from models
 func ExtractKeys(src interface{}) []*datastore.Key {
-	xs := reflect.ValueOf(src)
-	if xs.Kind() == reflect.Ptr {
-		xs = xs.Elem()
-	}
+	xs := valueOf(src)
 	l := xs.Len()
 	keys := make([]*datastore.Key, l)
 	for i := 0; i < l; i++ {
