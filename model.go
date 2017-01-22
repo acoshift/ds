@@ -56,8 +56,8 @@ func (x *Model) SetID(kind string, id int64) {
 	x.SetKey(datastore.IDKey(kind, id, nil))
 }
 
-// GetID returns id
-func (x *Model) GetID() int64 {
+// ID returns id
+func (x *Model) ID() int64 {
 	if x == nil {
 		return 0
 	}
@@ -129,8 +129,8 @@ func (x *StringIDModel) NewKey(kind string) {
 	x.SetKey(datastore.IncompleteKey(kind, nil))
 }
 
-// GetID return id
-func (x *StringIDModel) GetID() string {
+// ID return id
+func (x *StringIDModel) ID() string {
 	if x == nil {
 		return ""
 	}

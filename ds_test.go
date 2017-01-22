@@ -55,10 +55,10 @@ func TestSave(t *testing.T) {
 	if x.Key() == nil {
 		t.Errorf("expetect key to be assigned")
 	}
-	if x.GetID() == 0 {
+	if x.ID() == 0 {
 		t.Errorf("expected id to be assigned")
 	}
-	err = client.DeleteByID(ctx, "ExampleModel", x.GetID())
+	err = client.DeleteByID(ctx, "ExampleModel", x.ID())
 	if err != nil {
 		t.Error(err)
 	}
