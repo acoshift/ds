@@ -1,7 +1,6 @@
 package ds
 
 import (
-	"context"
 	"testing"
 
 	"cloud.google.com/go/datastore"
@@ -11,7 +10,6 @@ func TestPutModel(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping put model")
 	}
-	ctx := context.Background()
 	client, err := initClient()
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +37,6 @@ func TestPutModels(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping put model")
 	}
-	ctx := context.Background()
 	client, err := initClient()
 	if err != nil {
 		t.Fatal(err)

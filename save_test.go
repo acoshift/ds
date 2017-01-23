@@ -1,7 +1,6 @@
 package ds
 
 import (
-	"context"
 	"testing"
 )
 
@@ -9,7 +8,6 @@ func TestSaveModel(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping save model")
 	}
-	ctx := context.Background()
 	client, err := initClient()
 	if err != nil {
 		t.Fatal(err)
@@ -38,7 +36,6 @@ func TestSaveModels(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping save models")
 	}
-	ctx := context.Background()
 	client, err := initClient()
 	if err != nil {
 		t.Fatal(err)

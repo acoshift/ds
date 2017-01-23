@@ -1,18 +1,11 @@
 package ds
 
 import (
-	"context"
 	"testing"
 )
 
-func checkSkipGet(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping get")
-	}
-}
-
 func TestGetByKey(t *testing.T) {
-	checkSkipGet(t)
+	skipShort(t, "GetByKey")
 	client, err := initClient()
 	if err != nil {
 		t.Fatal(err)
@@ -21,7 +14,6 @@ func TestGetByKey(t *testing.T) {
 	keys := prepareData(client)
 	defer removeData(client)
 
-	ctx := context.Background()
 	var x ExampleModel
 
 	err = client.GetByKey(ctx, keys[0], &x)

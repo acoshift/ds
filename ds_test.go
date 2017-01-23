@@ -22,6 +22,14 @@ type ExampleNotModel struct {
 	Name string
 }
 
+var ctx = context.Background()
+
+func skipShort(t *testing.T, name string) {
+	if testing.Short() {
+		t.Skip("skipping", name)
+	}
+}
+
 func initClient() (*Client, error) {
 	// load service account from env
 	serviceAccountStr := os.Getenv("service_account")
@@ -35,17 +43,17 @@ func initClient() (*Client, error) {
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, option.WithTokenSource(cfg.TokenSource(context.Background())))
+		opts = append(opts, option.WithTokenSource(cfg.TokenSource(ctx)))
 	}
 	projectID := os.Getenv("project_id")
 	if projectID == "" {
 		projectID = "acoshift-test"
 	}
-	return NewClient(context.Background(), projectID, opts...)
+	return NewClient(ctx, projectID, opts...)
 }
 
 func TestInvalidNewClient(t *testing.T) {
-	client, err := NewClient(context.Background(), "invalid-project-id", option.WithServiceAccountFile("invalid-file"))
+	client, err := NewClient(ctx, "invalid-project-id", option.WithServiceAccountFile("invalid-file"))
 	if err == nil {
 		t.Errorf("expected error not nil")
 	}
@@ -64,12 +72,11 @@ func prepareData(client *Client) []*datastore.Key {
 		&ExampleModel{Name: "name6", Value: 6},
 		&ExampleModel{Name: "name7", Value: 7},
 	}
-	client.SaveModels(context.Background(), "Test", xs)
+	client.SaveModels(ctx, "Test", xs)
 	return ExtractKeys(xs)
 }
 
 func removeData(client *Client) {
-	ctx := context.Background()
 	keys, _ := client.QueryKeys(ctx, "Test")
 	client.DeleteMulti(ctx, keys)
 }
