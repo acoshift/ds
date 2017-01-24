@@ -63,6 +63,14 @@ func (x *Model) ID() int64 {
 	return x.id
 }
 
+// StringID return id in string format
+func (x *Model) StringID() string {
+	if x == nil {
+		return ""
+	}
+	return strconv.FormatInt(x.id, 10)
+}
+
 // NewKey sets incomplete key to model
 func (x *Model) NewKey(kind string) {
 	x.SetKey(datastore.IncompleteKey(kind, nil))
