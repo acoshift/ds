@@ -1,6 +1,8 @@
 package ds
 
 import (
+	"log"
+
 	"cloud.google.com/go/datastore"
 	"google.golang.org/api/iterator"
 )
@@ -23,9 +25,13 @@ func Ignore(err error, f func(error) bool) error {
 	}
 
 	if errs, ok := err.(datastore.MultiError); ok {
+		if len(errs) == 0 {
+			return nil
+		}
 		es := make(datastore.MultiError, 0)
 		for _, err := range errs {
-			if !f(err) {
+			if !f(err) && err != nil {
+				log.Println(err)
 				es = append(es, err)
 			}
 		}
