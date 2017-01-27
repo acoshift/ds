@@ -57,6 +57,16 @@ func (client *Client) QueryKeys(ctx context.Context, kind string, qs ...Query) (
 	return keys, nil
 }
 
+// QueryCount counts entity
+func (client *Client) QueryCount(ctx context.Context, kind string, qs ...Query) (int, error) {
+	q := datastore.NewQuery(kind)
+	for _, setter := range qs {
+		q = setter(q)
+	}
+
+	return client.Count(ctx, q)
+}
+
 // Query Helper functions
 
 // Filter func
