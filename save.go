@@ -15,7 +15,7 @@ func beforeSave(kind string, src interface{}) {
 	}
 
 	// create new key
-	if x.Key() == nil && kind != "" {
+	if x.GetKey() == nil && kind != "" {
 		x.NewKey(kind)
 	}
 }
@@ -27,7 +27,7 @@ func (client *Client) SaveModel(ctx context.Context, kind string, src interface{
 	beforeSave(kind, src)
 
 	x := src.(KeyGetSetter)
-	key, err := client.Put(ctx, x.Key(), x)
+	key, err := client.Put(ctx, x.GetKey(), x)
 	x.SetKey(key)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (client *Client) SaveModels(ctx context.Context, kind string, src interface
 	for i := range keys {
 		x := xs.Index(i).Interface()
 		beforeSave(kind, x)
-		keys[i] = x.(KeyGetter).Key()
+		keys[i] = x.(KeyGetter).GetKey()
 	}
 	keys, err := client.PutMulti(ctx, keys, src)
 	SetKeys(keys, src)

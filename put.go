@@ -9,7 +9,7 @@ import (
 // PutModel puts a model to datastore
 func (client *Client) PutModel(ctx context.Context, src interface{}) error {
 	x := src.(KeyGetSetter)
-	_, err := client.Put(ctx, x.Key(), x)
+	_, err := client.Put(ctx, x.GetKey(), x)
 	return err
 }
 
@@ -19,7 +19,7 @@ func (client *Client) PutModels(ctx context.Context, src interface{}) error {
 	keys := make([]*datastore.Key, xs.Len())
 	for i := range keys {
 		x := xs.Index(i).Interface()
-		keys[i] = x.(KeyGetter).Key()
+		keys[i] = x.(KeyGetter).GetKey()
 	}
 	_, err := client.PutMulti(ctx, keys, src)
 	return err

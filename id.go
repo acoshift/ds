@@ -45,7 +45,7 @@ func BuildNameKeys(kind string, names []string) []*datastore.Key {
 
 // ExtractKey returns key from model
 func ExtractKey(src interface{}) *datastore.Key {
-	return src.(KeyGetter).Key()
+	return src.(KeyGetter).GetKey()
 }
 
 // ExtractKeys returns keys from models

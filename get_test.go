@@ -20,7 +20,7 @@ func TestGetByKey(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if !x.Key().Equal(keys[0]) {
+	if !x.GetKey().Equal(keys[0]) {
 		t.Errorf("key not equals")
 	}
 
@@ -33,7 +33,7 @@ func TestGetByKey(t *testing.T) {
 		t.Errorf("keys and result len not equals")
 	}
 	for i := range keys {
-		if !keys[i].Equal(xs[i].Key()) {
+		if !keys[i].Equal(xs[i].GetKey()) {
 			t.Errorf("key not equals")
 		}
 	}
@@ -47,7 +47,7 @@ func TestGetByKey(t *testing.T) {
 		t.Errorf("keys and result len not equals")
 	}
 	for i := range keys {
-		if !keys[i].Equal(xs2[i].Key()) {
+		if !keys[i].Equal(xs2[i].GetKey()) {
 			t.Errorf("key not equals")
 		}
 	}

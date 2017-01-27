@@ -17,7 +17,7 @@ func TestSaveModel(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if x.Key() == nil {
+	if x.GetKey() == nil {
 		t.Errorf("expetect key to be assigned")
 	}
 	if x.CreatedAt.IsZero() || x.UpdatedAt.IsZero() {
@@ -49,7 +49,7 @@ func TestSaveModels(t *testing.T) {
 		t.Error(err)
 	}
 	for _, x := range xs {
-		if x.Key() == nil {
+		if x.GetKey() == nil {
 			t.Errorf("expetect key to be assigned")
 		}
 		if x.CreatedAt.IsZero() || x.UpdatedAt.IsZero() {

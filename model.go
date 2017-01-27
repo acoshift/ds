@@ -8,7 +8,7 @@ import (
 
 // KeyGetter interface
 type KeyGetter interface {
-	Key() *datastore.Key
+	GetKey() *datastore.Key
 }
 
 // KeySetter interface
@@ -25,16 +25,15 @@ type KeyGetSetter interface {
 
 // Model is the base model which id is int64
 type Model struct {
-	key *datastore.Key
-	id  int64
+	Key *datastore.Key `datastore:"__key__"`
 }
 
-// Key returns key from model
-func (x *Model) Key() *datastore.Key {
+// GetKey returns key from model
+func (x *Model) GetKey() *datastore.Key {
 	if x == nil {
 		return nil
 	}
-	return x.key
+	return x.Key
 }
 
 // SetKey sets model key to given key
@@ -42,12 +41,7 @@ func (x *Model) SetKey(key *datastore.Key) {
 	if x == nil {
 		return
 	}
-	x.key = key
-	if key == nil {
-		x.id = 0
-		return
-	}
-	x.id = key.ID
+	x.Key = key
 }
 
 // SetID sets id key to model
@@ -57,18 +51,18 @@ func (x *Model) SetID(kind string, id int64) {
 
 // ID returns id
 func (x *Model) ID() int64 {
-	if x == nil {
+	if x == nil || x.Key == nil {
 		return 0
 	}
-	return x.id
+	return x.Key.ID
 }
 
 // StringID return id in string format
 func (x *Model) StringID() string {
-	if x == nil {
+	if x == nil || x.Key == nil {
 		return ""
 	}
-	return strconv.FormatInt(x.id, 10)
+	return strconv.FormatInt(x.Key.ID, 10)
 }
 
 // NewKey sets incomplete key to model
@@ -79,16 +73,15 @@ func (x *Model) NewKey(kind string) {
 // StringIDModel is the base model which id is string
 // but can use both id key and name key
 type StringIDModel struct {
-	key *datastore.Key
-	id  string
+	Key *datastore.Key `datastore:"__key__"`
 }
 
-// Key returns key from model
-func (x *StringIDModel) Key() *datastore.Key {
+// GetKey returns key from model
+func (x *StringIDModel) GetKey() *datastore.Key {
 	if x == nil {
 		return nil
 	}
-	return x.key
+	return x.Key
 }
 
 // SetKey sets model key to given key
@@ -97,18 +90,7 @@ func (x *StringIDModel) SetKey(key *datastore.Key) {
 	if x == nil {
 		return
 	}
-	x.key = key
-	x.id = ""
-	if key == nil {
-		return
-	}
-	if key.Name != "" {
-		x.id = key.Name
-		return
-	}
-	if key.ID != 0 {
-		x.id = strconv.FormatInt(key.ID, 10)
-	}
+	x.Key = key
 }
 
 // SetID sets id to model
@@ -138,10 +120,16 @@ func (x *StringIDModel) NewKey(kind string) {
 
 // ID return id
 func (x *StringIDModel) ID() string {
-	if x == nil {
+	if x == nil || x.Key == nil {
 		return ""
 	}
-	return x.id
+	if x.Key.Name != "" {
+		return x.Key.Name
+	}
+	if x.Key.ID != 0 {
+		return strconv.FormatInt(x.Key.ID, 10)
+	}
+	return ""
 }
 
 // SetKey sets key to model

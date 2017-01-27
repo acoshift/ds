@@ -10,7 +10,7 @@ import (
 
 func TestModel(t *testing.T) {
 	var x *Model
-	if x.Key() != nil {
+	if x.GetKey() != nil {
 		t.Errorf("expected key of nil to be nil")
 	}
 
@@ -25,12 +25,12 @@ func TestModel(t *testing.T) {
 
 	x = &Model{}
 	x.NewKey("Test")
-	if x.Key() == nil {
+	if x.GetKey() == nil {
 		t.Errorf("expected key not nil")
 	}
 
 	x.SetKey(nil)
-	if x.Key() != nil {
+	if x.GetKey() != nil {
 		t.Errorf("expected key to be nil")
 	}
 	if x.ID() != 0 {
@@ -38,7 +38,7 @@ func TestModel(t *testing.T) {
 	}
 
 	x.SetID("Test", 10)
-	if x.Key() == nil {
+	if x.GetKey() == nil {
 		t.Errorf("expected key not nil")
 	}
 	if x.ID() == 0 {
@@ -48,7 +48,7 @@ func TestModel(t *testing.T) {
 
 func TestStringIDModel(t *testing.T) {
 	var x *StringIDModel
-	if x.Key() != nil {
+	if x.GetKey() != nil {
 		t.Errorf("expected key of nil to be nil")
 	}
 
@@ -65,12 +65,12 @@ func TestStringIDModel(t *testing.T) {
 
 	x = &StringIDModel{}
 	x.NewKey("Test")
-	if x.Key() == nil {
+	if x.GetKey() == nil {
 		t.Errorf("expected key not nil")
 	}
 
 	x.SetKey(nil)
-	if x.Key() != nil {
+	if x.GetKey() != nil {
 		t.Errorf("expected key to be nil")
 	}
 	if x.ID() != "" {
@@ -78,7 +78,7 @@ func TestStringIDModel(t *testing.T) {
 	}
 
 	x.SetID("Test", 10)
-	if x.Key() == nil {
+	if x.GetKey() == nil {
 		t.Errorf("expected key not nil")
 	}
 	if x.ID() == "" {
@@ -86,7 +86,7 @@ func TestStringIDModel(t *testing.T) {
 	}
 
 	x.SetStringID("Test", "10")
-	if x.Key() == nil {
+	if x.GetKey() == nil {
 		t.Errorf("expected key not nil")
 	}
 	if x.ID() != "10" {
@@ -94,7 +94,7 @@ func TestStringIDModel(t *testing.T) {
 	}
 
 	x.SetNameID("Test", "aaa")
-	if x.Key() == nil {
+	if x.GetKey() == nil {
 		t.Errorf("expected key not nil")
 	}
 	if x.ID() != "aaa" {
@@ -109,13 +109,13 @@ func TestSetKey(t *testing.T) {
 	SetKey(nil, x)
 	SetKey(key, nil)
 	SetKey(key, x)
-	if x.Key() == nil {
+	if x.GetKey() == nil {
 		t.Errorf("expected key not nil")
 	}
 	y := Model{}
 	// Set to unpointer should not have side-effect
 	SetKey(key, y)
-	if y.Key() != nil {
+	if y.GetKey() != nil {
 		t.Errorf("expected key to be nil")
 	}
 }
@@ -141,10 +141,10 @@ func TestSetKeys(t *testing.T) {
 	SetKeys(keys, &xs)
 	for i := range xs {
 		if x, ok := xs[i].(KeyGetter); ok {
-			if x.Key() == nil {
+			if x.GetKey() == nil {
 				t.Errorf("expected key not nil")
 			}
-			if x.Key() != keys[i] {
+			if x.GetKey() != keys[i] {
 				t.Errorf("wrong key")
 			}
 		}
@@ -168,8 +168,8 @@ func TestSetIDs(t *testing.T) {
 	validate := func() {
 		for i := range xs {
 			if x, ok := xs[i].(KeyGetter); ok {
-				if x.Key().ID != ids[i] {
-					t.Errorf("expected id to be %d; got %d", ids[i], x.Key().ID)
+				if x.GetKey().ID != ids[i] {
+					t.Errorf("expected id to be %d; got %d", ids[i], x.GetKey().ID)
 				}
 			}
 		}
@@ -207,8 +207,8 @@ func TestSetStringIDs(t *testing.T) {
 	validate := func() {
 		for i := range xs {
 			if x, ok := xs[i].(KeyGetter); ok {
-				if x.Key().ID != parseID(ids[i]) {
-					t.Errorf("expected id to be %s; got %d", ids[i], x.Key().ID)
+				if x.GetKey().ID != parseID(ids[i]) {
+					t.Errorf("expected id to be %s; got %d", ids[i], x.GetKey().ID)
 				}
 			}
 		}
@@ -237,8 +237,8 @@ func TestSetNameIDs(t *testing.T) {
 	validate := func() {
 		for i := range xs {
 			if x, ok := xs[i].(KeyGetter); ok {
-				if x.Key().ID != parseID(ids[i]) {
-					t.Errorf("expected id to be %s; got %d", ids[i], x.Key().ID)
+				if x.GetKey().ID != parseID(ids[i]) {
+					t.Errorf("expected id to be %s; got %d", ids[i], x.GetKey().ID)
 				}
 			}
 		}

@@ -10,7 +10,6 @@ import (
 // GetByKey retrieves model from datastore by key
 func (client *Client) GetByKey(ctx context.Context, key *datastore.Key, dst interface{}) error {
 	err := client.Get(ctx, key, dst)
-	SetKey(key, dst)
 	if err != nil {
 		return err
 	}
@@ -29,7 +28,6 @@ func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst 
 	}
 
 	err := client.GetMulti(ctx, keys, dst)
-	SetKeys(keys, dst)
 	if err != nil {
 		return err
 	}
@@ -87,8 +85,7 @@ func (client *Client) GetByNames(ctx context.Context, kind string, names []strin
 
 // GetByQuery retrieves model from datastore by datastore query
 func (client *Client) GetByQuery(ctx context.Context, q *datastore.Query, dst interface{}) error {
-	keys, err := client.GetAll(ctx, q, dst)
-	SetKeys(keys, dst)
+	_, err := client.GetAll(ctx, q, dst)
 	if err != nil {
 		return err
 	}
