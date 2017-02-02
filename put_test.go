@@ -17,19 +17,19 @@ func TestPutModel(t *testing.T) {
 	x := &ExampleModel{Name: "Test1", Value: 1}
 	err = client.PutModel(ctx, x)
 	if err != datastore.ErrInvalidKey {
-		t.Errorf("expected error to be %v; got %v", datastore.ErrInvalidKey, err)
+		t.Fatalf("expected error to be %v; got %v", datastore.ErrInvalidKey, err)
 	}
 	x.SetID("Test", 99)
 	err = client.PutModel(ctx, x)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if !x.CreatedAt.IsZero() || !x.UpdatedAt.IsZero() {
-		t.Errorf("expetect stamp model not assigned")
+		t.Fatalf("expetect stamp model not assigned")
 	}
 	err = client.DeleteModel(ctx, x)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }
 
@@ -47,22 +47,22 @@ func TestPutModels(t *testing.T) {
 	}
 	err = client.PutModels(ctx, xs)
 	if err == nil {
-		t.Errorf("expected error not nil")
+		t.Fatalf("expected error not nil")
 	}
 	for i, x := range xs {
 		x.SetID("Test", int64(i+100))
 	}
 	err = client.PutModels(ctx, xs)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	for _, x := range xs {
 		if !x.CreatedAt.IsZero() || !x.UpdatedAt.IsZero() {
-			t.Errorf("expetect stamp model not assigned")
+			t.Fatalf("expetect stamp model not assigned")
 		}
 	}
 	err = client.DeleteModels(ctx, xs)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }

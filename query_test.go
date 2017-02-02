@@ -16,20 +16,20 @@ func TestQuery(t *testing.T) {
 	var xs []*ExampleModel
 	err = client.Query(ctx, keys[0].Kind, &xs)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	var x ExampleModel
 	err = client.QueryFirst(ctx, keys[0].Kind, &x)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	ks, err := client.QueryKeys(ctx, keys[0].Kind)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if len(keys) != len(ks) {
-		t.Error("expected query by keys have same length as prepare data")
+		t.Fatal("expected query by keys have same length as prepare data")
 	}
 }

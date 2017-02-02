@@ -11,7 +11,7 @@ import (
 func TestModel(t *testing.T) {
 	var x *Model
 	if x.GetKey() != nil {
-		t.Errorf("expected key of nil to be nil")
+		t.Fatalf("expected key of nil to be nil")
 	}
 
 	// Should not panic
@@ -20,36 +20,36 @@ func TestModel(t *testing.T) {
 	x.SetID("Test", 10)
 	x.NewKey("Test")
 	if x.ID() != 0 {
-		t.Errorf("expected id to be 0")
+		t.Fatalf("expected id to be 0")
 	}
 
 	x = &Model{}
 	x.NewKey("Test")
 	if x.GetKey() == nil {
-		t.Errorf("expected key not nil")
+		t.Fatalf("expected key not nil")
 	}
 
 	x.SetKey(nil)
 	if x.GetKey() != nil {
-		t.Errorf("expected key to be nil")
+		t.Fatalf("expected key to be nil")
 	}
 	if x.ID() != 0 {
-		t.Errorf("expected id to be 0")
+		t.Fatalf("expected id to be 0")
 	}
 
 	x.SetID("Test", 10)
 	if x.GetKey() == nil {
-		t.Errorf("expected key not nil")
+		t.Fatalf("expected key not nil")
 	}
 	if x.ID() == 0 {
-		t.Errorf("expected id not 0")
+		t.Fatalf("expected id not 0")
 	}
 }
 
 func TestStringIDModel(t *testing.T) {
 	var x *StringIDModel
 	if x.GetKey() != nil {
-		t.Errorf("expected key of nil to be nil")
+		t.Fatalf("expected key of nil to be nil")
 	}
 
 	// Should not panic
@@ -60,45 +60,45 @@ func TestStringIDModel(t *testing.T) {
 	x.SetNameID("Test", "bbb")
 	x.NewKey("Test")
 	if x.ID() != "" {
-		t.Errorf("expected id to be empty")
+		t.Fatalf("expected id to be empty")
 	}
 
 	x = &StringIDModel{}
 	x.NewKey("Test")
 	if x.GetKey() == nil {
-		t.Errorf("expected key not nil")
+		t.Fatalf("expected key not nil")
 	}
 
 	x.SetKey(nil)
 	if x.GetKey() != nil {
-		t.Errorf("expected key to be nil")
+		t.Fatalf("expected key to be nil")
 	}
 	if x.ID() != "" {
-		t.Errorf("expected id to be empty")
+		t.Fatalf("expected id to be empty")
 	}
 
 	x.SetID("Test", 10)
 	if x.GetKey() == nil {
-		t.Errorf("expected key not nil")
+		t.Fatalf("expected key not nil")
 	}
 	if x.ID() == "" {
-		t.Errorf("expected id not empty")
+		t.Fatalf("expected id not empty")
 	}
 
 	x.SetStringID("Test", "10")
 	if x.GetKey() == nil {
-		t.Errorf("expected key not nil")
+		t.Fatalf("expected key not nil")
 	}
 	if x.ID() != "10" {
-		t.Errorf("expected id to be %s; got %s", "10", x.ID())
+		t.Fatalf("expected id to be %s; got %s", "10", x.ID())
 	}
 
 	x.SetNameID("Test", "aaa")
 	if x.GetKey() == nil {
-		t.Errorf("expected key not nil")
+		t.Fatalf("expected key not nil")
 	}
 	if x.ID() != "aaa" {
-		t.Errorf("expected id to be %s; got %s", "aaa", x.ID())
+		t.Fatalf("expected id to be %s; got %s", "aaa", x.ID())
 	}
 }
 
@@ -110,13 +110,13 @@ func TestSetKey(t *testing.T) {
 	SetKey(key, nil)
 	SetKey(key, x)
 	if x.GetKey() == nil {
-		t.Errorf("expected key not nil")
+		t.Fatalf("expected key not nil")
 	}
 	y := Model{}
 	// Set to unpointer should not have side-effect
 	SetKey(key, y)
 	if y.GetKey() != nil {
-		t.Errorf("expected key to be nil")
+		t.Fatalf("expected key to be nil")
 	}
 }
 
@@ -142,10 +142,10 @@ func TestSetKeys(t *testing.T) {
 	for i := range xs {
 		if x, ok := xs[i].(KeyGetter); ok {
 			if x.GetKey() == nil {
-				t.Errorf("expected key not nil")
+				t.Fatalf("expected key not nil")
 			}
 			if x.GetKey() != keys[i] {
-				t.Errorf("wrong key")
+				t.Fatalf("wrong key")
 			}
 		}
 	}
@@ -169,7 +169,7 @@ func TestSetIDs(t *testing.T) {
 		for i := range xs {
 			if x, ok := xs[i].(KeyGetter); ok {
 				if x.GetKey().ID != ids[i] {
-					t.Errorf("expected id to be %d; got %d", ids[i], x.GetKey().ID)
+					t.Fatalf("expected id to be %d; got %d", ids[i], x.GetKey().ID)
 				}
 			}
 		}
@@ -208,7 +208,7 @@ func TestSetStringIDs(t *testing.T) {
 		for i := range xs {
 			if x, ok := xs[i].(KeyGetter); ok {
 				if x.GetKey().ID != parseID(ids[i]) {
-					t.Errorf("expected id to be %s; got %d", ids[i], x.GetKey().ID)
+					t.Fatalf("expected id to be %s; got %d", ids[i], x.GetKey().ID)
 				}
 			}
 		}
@@ -238,7 +238,7 @@ func TestSetNameIDs(t *testing.T) {
 		for i := range xs {
 			if x, ok := xs[i].(KeyGetter); ok {
 				if x.GetKey().ID != parseID(ids[i]) {
-					t.Errorf("expected id to be %s; got %d", ids[i], x.GetKey().ID)
+					t.Fatalf("expected id to be %s; got %d", ids[i], x.GetKey().ID)
 				}
 			}
 		}

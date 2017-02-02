@@ -15,7 +15,7 @@ func TestDeleteByID(t *testing.T) {
 	defer removeData(client)
 	err = client.DeleteByID(ctx, keys[0].Kind, keys[0].ID)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }
 
@@ -29,7 +29,7 @@ func TestDeleteByStringID(t *testing.T) {
 	defer removeData(client)
 	err = client.DeleteByStringID(ctx, keys[0].Kind, strconv.FormatInt(keys[0].ID, 10))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }
 
@@ -47,7 +47,7 @@ func TestDeleteByIDs(t *testing.T) {
 	}
 	err = client.DeleteByIDs(ctx, keys[0].Kind, ids)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }
 
@@ -65,6 +65,6 @@ func TestDeleteByStringIDs(t *testing.T) {
 	}
 	err = client.DeleteByStringIDs(ctx, keys[0].Kind, ids)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }

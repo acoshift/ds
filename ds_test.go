@@ -55,10 +55,10 @@ func initClient() (*Client, error) {
 func TestInvalidNewClient(t *testing.T) {
 	client, err := NewClient(ctx, "invalid-project-id", option.WithServiceAccountFile("invalid-file"))
 	if err == nil {
-		t.Errorf("expected error not nil")
+		t.Fatalf("expected error not nil")
 	}
 	if client != nil {
-		t.Errorf("expected client to be nil")
+		t.Fatalf("expected client to be nil")
 	}
 }
 

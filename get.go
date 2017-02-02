@@ -20,11 +20,12 @@ func (client *Client) GetByKey(ctx context.Context, key *datastore.Key, dst inte
 func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst interface{}) error {
 	// prepare slice if dst is pointer to 0 len slice
 	if rf := reflect.ValueOf(dst); rf.Kind() == reflect.Ptr {
-		if rs := rf.Elem(); rs.Kind() == reflect.Slice && rs.Len() == 0 {
+		rs := rf.Elem()
+		if rs.Kind() == reflect.Slice && rs.Len() == 0 {
 			l := len(keys)
 			rs.Set(reflect.MakeSlice(rs.Type(), l, l))
-			dst = rs.Interface()
 		}
+		dst = rs.Interface()
 	}
 
 	err := client.GetMulti(ctx, keys, dst)

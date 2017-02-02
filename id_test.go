@@ -18,7 +18,7 @@ func TestParseID(t *testing.T) {
 	for _, c := range cases {
 		out := parseID(c.in)
 		if out != c.out {
-			t.Errorf("expected parseID %s to be %d; got %d", c.in, c.out, out)
+			t.Fatalf("expected parseID %s to be %d; got %d", c.in, c.out, out)
 		}
 	}
 }
@@ -29,10 +29,10 @@ func TestBuildIDKeys(t *testing.T) {
 	keys := BuildIDKeys(kind, ids)
 	for i, key := range keys {
 		if key.ID != ids[i] {
-			t.Errorf("expected key id to be %d; got %d", ids[i], key.ID)
+			t.Fatalf("expected key id to be %d; got %d", ids[i], key.ID)
 		}
 		if key.Kind != kind {
-			t.Errorf("expected key kind to be %s; got %s", kind, key.Kind)
+			t.Fatalf("expected key kind to be %s; got %s", kind, key.Kind)
 		}
 	}
 }
@@ -43,14 +43,14 @@ func TestBuildStringIDKeys(t *testing.T) {
 	out := []int64{123, 456}
 	keys := BuildStringIDKeys(kind, ids)
 	if len(keys) != len(out) {
-		t.Errorf("expected result keys length to be %d; got %d", len(out), len(keys))
+		t.Fatalf("expected result keys length to be %d; got %d", len(out), len(keys))
 	}
 	for i, key := range keys {
 		if key.ID != out[i] {
-			t.Errorf("expected key id to be %d; got %d", out[i], key.ID)
+			t.Fatalf("expected key id to be %d; got %d", out[i], key.ID)
 		}
 		if key.Kind != kind {
-			t.Errorf("expected key kind to be %s; got %s", kind, key.Kind)
+			t.Fatalf("expected key kind to be %s; got %s", kind, key.Kind)
 		}
 	}
 }
@@ -60,14 +60,14 @@ func TestBuildNameIDKeys(t *testing.T) {
 	ids := []string{"aa", "bb", "cccc", "123", "456"}
 	keys := BuildNameKeys(kind, ids)
 	if len(keys) != len(ids) {
-		t.Errorf("expected result keys length to be %d; got %d", len(ids), len(keys))
+		t.Fatalf("expected result keys length to be %d; got %d", len(ids), len(keys))
 	}
 	for i, key := range keys {
 		if key.Name != ids[i] {
-			t.Errorf("expected key id to be %s; got %s", ids[i], key.Name)
+			t.Fatalf("expected key id to be %s; got %s", ids[i], key.Name)
 		}
 		if key.Kind != kind {
-			t.Errorf("expected key kind to be %s; got %s", kind, key.Kind)
+			t.Fatalf("expected key kind to be %s; got %s", kind, key.Kind)
 		}
 	}
 }
@@ -77,7 +77,7 @@ func TestExtractKey(t *testing.T) {
 	x.SetID("Test", 10)
 	key := ExtractKey(x)
 	if key == nil {
-		t.Errorf("expected key not nil")
+		t.Fatalf("expected key not nil")
 	}
 }
 
@@ -90,10 +90,10 @@ func TestExtractKeys(t *testing.T) {
 	keys := ExtractKeys(xs)
 	for i, key := range keys {
 		if key == nil {
-			t.Errorf("expected key not nil")
+			t.Fatalf("expected key not nil")
 		}
 		if key.ID != int64(i) {
-			t.Errorf("expected key id to be %d; got %d", i, key.ID)
+			t.Fatalf("expected key id to be %d; got %d", i, key.ID)
 		}
 	}
 }
@@ -107,10 +107,10 @@ func TestExtractKeysPtr(t *testing.T) {
 	keys := ExtractKeys(&xs)
 	for i, key := range keys {
 		if key == nil {
-			t.Errorf("expected key not nil")
+			t.Fatalf("expected key not nil")
 		}
 		if key.ID != int64(i) {
-			t.Errorf("expected key id to be %d; got %d", i, key.ID)
+			t.Fatalf("expected key id to be %d; got %d", i, key.ID)
 		}
 	}
 }

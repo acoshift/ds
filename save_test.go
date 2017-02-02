@@ -15,20 +15,20 @@ func TestSaveModel(t *testing.T) {
 	x := &ExampleModel{Name: "Test1", Value: 1}
 	err = client.SaveModel(ctx, "ExampleModel", x)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if x.GetKey() == nil {
-		t.Errorf("expetect key to be assigned")
+		t.Fatalf("expetect key to be assigned")
 	}
 	if x.CreatedAt.IsZero() || x.UpdatedAt.IsZero() {
-		t.Errorf("expetect stamp model to be assigned")
+		t.Fatalf("expetect stamp model to be assigned")
 	}
 	if x.ID() == 0 {
-		t.Errorf("expected id to be assigned")
+		t.Fatalf("expected id to be assigned")
 	}
 	err = client.DeleteModel(ctx, x)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }
 
@@ -46,18 +46,18 @@ func TestSaveModels(t *testing.T) {
 	}
 	err = client.SaveModels(ctx, "Test", xs)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	for _, x := range xs {
 		if x.GetKey() == nil {
-			t.Errorf("expetect key to be assigned")
+			t.Fatalf("expetect key to be assigned")
 		}
 		if x.CreatedAt.IsZero() || x.UpdatedAt.IsZero() {
-			t.Errorf("expetect stamp model to be assigned")
+			t.Fatalf("expetect stamp model to be assigned")
 		}
 	}
 	err = client.DeleteModels(ctx, xs)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }
