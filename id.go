@@ -1,6 +1,7 @@
 package ds
 
 import (
+	"context"
 	"strconv"
 
 	"cloud.google.com/go/datastore"
@@ -57,4 +58,38 @@ func ExtractKeys(src interface{}) []*datastore.Key {
 		keys[i] = ExtractKey(xs.Index(i).Interface())
 	}
 	return keys
+}
+
+// AllocateIDModel allocates id for model
+func (client *Client) AllocateIDModel(ctx context.Context, kind string, src interface{}) error {
+	m := src.(KeyGetSetter)
+	if m.GetKey() == nil {
+		m.SetKey(datastore.IncompleteKey(kind, nil))
+	}
+	keys, err := client.AllocateIDs(ctx, []*datastore.Key{m.GetKey()})
+	if err != nil {
+		return err
+	}
+	m.SetKey(keys[0])
+	return nil
+}
+
+// AllocateIDModels allocates id for models
+func (client *Client) AllocateIDModels(ctx context.Context, kind string, src interface{}) error {
+	xs := valueOf(src)
+	keys := make([]*datastore.Key, xs.Len())
+	for i := range keys {
+		x := xs.Index(i).Interface()
+		m := x.(KeyGetSetter)
+		if m.GetKey() == nil {
+			m.SetKey(datastore.IncompleteKey(kind, nil))
+		}
+		keys[i] = x.(KeyGetter).GetKey()
+	}
+	keys, err := client.AllocateIDs(ctx, keys)
+	if err != nil {
+		return err
+	}
+	SetKeys(keys, src)
+	return nil
 }

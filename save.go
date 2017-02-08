@@ -52,3 +52,29 @@ func (client *Client) SaveModels(ctx context.Context, kind string, src interface
 	}
 	return nil
 }
+
+// AllocateModel calls AllocateIDModel and SaveModel
+func (client *Client) AllocateModel(ctx context.Context, kind string, src interface{}) error {
+	err := client.AllocateIDModel(ctx, kind, src)
+	if err != nil {
+		return err
+	}
+	err = client.SaveModel(ctx, kind, src)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// AllocateModels calls AllocateIDModels and SaveModels
+func (client *Client) AllocateModels(ctx context.Context, kind string, src interface{}) error {
+	err := client.AllocateIDModels(ctx, kind, src)
+	if err != nil {
+		return err
+	}
+	err = client.SaveModels(ctx, kind, src)
+	if err != nil {
+		return err
+	}
+	return nil
+}
