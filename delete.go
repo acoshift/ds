@@ -51,7 +51,7 @@ func (client *Client) DeleteByStringIDs(ctx context.Context, kind string, ids []
 
 // DeleteByName deletes data from datastore by NameKey
 func (client *Client) DeleteByName(ctx context.Context, kind string, name string) error {
-	if name == "" {
+	if len(name) == 0 {
 		return datastore.ErrInvalidKey
 	}
 	return client.Delete(ctx, datastore.NameKey(kind, name, nil))
@@ -61,7 +61,7 @@ func (client *Client) DeleteByName(ctx context.Context, kind string, name string
 func (client *Client) DeleteByNames(ctx context.Context, kind string, names []string) error {
 	keys := make([]*datastore.Key, len(names))
 	for i, name := range names {
-		if name == "" {
+		if len(name) == 0 {
 			return datastore.ErrInvalidKey
 		}
 		keys[i] = datastore.NameKey(kind, name, nil)
