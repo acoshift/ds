@@ -21,6 +21,7 @@ func (client *Client) PutModels(ctx context.Context, src interface{}) error {
 		x := xs.Index(i).Interface()
 		keys[i] = x.(KeyGetter).GetKey()
 	}
-	_, err := client.PutMulti(ctx, keys, src)
+	keys, err := client.PutMulti(ctx, keys, src)
+	SetKeys(keys, src)
 	return err
 }
