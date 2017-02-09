@@ -2,8 +2,6 @@ package ds
 
 import (
 	"context"
-
-	"cloud.google.com/go/datastore"
 )
 
 func beforeSave(kind string, src interface{}) {
@@ -35,18 +33,41 @@ func (client *Client) SaveModel(ctx context.Context, kind string, src interface{
 	return nil
 }
 
+const maxPutBatchSize = 500
+
+func (client *Client) saveModels(ctx context.Context, src interface{}) error {
+	xs := valueOf(src)
+	if xs.Len() > maxPutBatchSize {
+		// TODO: refactor error
+		errChan := make(chan error)
+		go func() { errChan <- client.saveModels(ctx, xs.Slice(0, maxPutBatchSize).Interface()) }()
+		go func() { errChan <- client.saveModels(ctx, xs.Slice(maxPutBatchSize, xs.Len()).Interface()) }()
+		err := <-errChan
+		if err != nil {
+			return err
+		}
+		err = <-errChan
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := client.PutModels(ctx, src)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // SaveModels saves models to datastore
 // see more in SaveModel
 func (client *Client) SaveModels(ctx context.Context, kind string, src interface{}) error {
 	xs := valueOf(src)
-	keys := make([]*datastore.Key, xs.Len())
-	for i := range keys {
+	for i := 0; i < xs.Len(); i++ {
 		x := xs.Index(i).Interface()
 		beforeSave(kind, x)
-		keys[i] = x.(KeyGetter).GetKey()
 	}
-	keys, err := client.PutMulti(ctx, keys, src)
-	SetKeys(keys, src)
+	err := client.saveModels(ctx, src)
 	if err != nil {
 		return err
 	}
