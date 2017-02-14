@@ -47,9 +47,31 @@ func (client *Client) SaveModel(ctx context.Context, kind string, src interface{
 // see more in SaveModel
 func (client *Client) SaveModels(ctx context.Context, kind string, src interface{}) error {
 	xs := valueOf(src)
-	for i := 0; i < xs.Len(); i++ {
-		x := xs.Index(i).Interface()
-		beforeSave(kind, x)
+	if client.AllocateIncompleteID {
+		keys := make([]*datastore.Key, 0, xs.Len())
+		mapIndex := make(map[int]int)
+		for i := 0; i < xs.Len(); i++ {
+			inf := xs.Index(i).Interface()
+			beforeSave(kind, inf)
+			if x, ok := inf.(KeyGetSetter); ok {
+				if k := x.GetKey(); k.Incomplete() {
+					keys = append(keys, datastore.IncompleteKey(kind, nil))
+					mapIndex[len(keys)-1] = i
+				}
+			}
+		}
+		keys, err := client.AllocateIDs(ctx, keys)
+		if err != nil {
+			return err
+		}
+		for dst, src := range mapIndex {
+			xs.Index(src).Interface().(KeyGetSetter).SetKey(keys[dst])
+		}
+	} else {
+		for i := 0; i < xs.Len(); i++ {
+			x := xs.Index(i).Interface()
+			beforeSave(kind, x)
+		}
 	}
 	err := client.PutModels(ctx, src)
 	if err != nil {
