@@ -11,6 +11,7 @@ import (
 // Client type
 type Client struct {
 	*datastore.Client
+	AllocateIncompleteID bool
 }
 
 // NewClient creates new ds client which wrap datastore client
@@ -19,5 +20,5 @@ func NewClient(ctx context.Context, projectID string, opts ...option.ClientOptio
 	if err != nil {
 		return nil, err
 	}
-	return &Client{client}, nil
+	return &Client{Client: client}, nil
 }
