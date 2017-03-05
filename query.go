@@ -171,3 +171,10 @@ func Distinct() Query {
 		return q.Distinct()
 	}
 }
+
+// DistinctOn adds distinct on to query
+func DistinctOn(fieldNames ...string) Query {
+	return func(q *datastore.Query) *datastore.Query {
+		return q.DistinctOn(fieldNames...)
+	}
+}
