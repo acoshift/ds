@@ -164,3 +164,10 @@ func EventualConsistency() Query {
 		return q.EventualConsistency()
 	}
 }
+
+// Distinct adds distinct to query
+func Distinct() Query {
+	return func(q *datastore.Query) *datastore.Query {
+		return q.Distinct()
+	}
+}
