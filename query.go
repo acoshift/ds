@@ -157,3 +157,10 @@ func Ancestor(ancestor *datastore.Key) Query {
 		return q.Ancestor(ancestor)
 	}
 }
+
+// EventualConsistency adds eventual consistency to query
+func EventualConsistency() Query {
+	return func(q *datastore.Query) *datastore.Query {
+		return q.EventualConsistency()
+	}
+}
