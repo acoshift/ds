@@ -150,3 +150,31 @@ func Transaction(t *datastore.Transaction) Query {
 		return q.Transaction(t)
 	}
 }
+
+// Ancestor adds ancestor to query
+func Ancestor(ancestor *datastore.Key) Query {
+	return func(q *datastore.Query) *datastore.Query {
+		return q.Ancestor(ancestor)
+	}
+}
+
+// EventualConsistency adds eventual consistency to query
+func EventualConsistency() Query {
+	return func(q *datastore.Query) *datastore.Query {
+		return q.EventualConsistency()
+	}
+}
+
+// Distinct adds distinct to query
+func Distinct() Query {
+	return func(q *datastore.Query) *datastore.Query {
+		return q.Distinct()
+	}
+}
+
+// DistinctOn adds distinct on to query
+func DistinctOn(fieldNames ...string) Query {
+	return func(q *datastore.Query) *datastore.Query {
+		return q.DistinctOn(fieldNames...)
+	}
+}
