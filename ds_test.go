@@ -18,6 +18,10 @@ type ExampleModel struct {
 	Value int
 }
 
+func (x *ExampleModel) NewKey() {
+	x.NewIncomplateKey("Test", nil)
+}
+
 type ExampleNotModel struct {
 	Name string
 }
@@ -72,7 +76,7 @@ func prepareData(client *Client) []*datastore.Key {
 		&ExampleModel{Name: "name6", Value: 6},
 		&ExampleModel{Name: "name7", Value: 7},
 	}
-	client.SaveModels(ctx, "Test", xs)
+	client.SaveModels(ctx, xs)
 	return ExtractKeys(xs)
 }
 

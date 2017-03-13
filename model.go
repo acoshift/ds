@@ -20,7 +20,11 @@ type KeySetter interface {
 type KeyGetSetter interface {
 	KeyGetter
 	KeySetter
-	NewKey(string)
+}
+
+// KeyNewer interface
+type KeyNewer interface {
+	NewKey()
 }
 
 // Model is the base model which id is int64
@@ -65,10 +69,15 @@ func (x *Model) StringID() string {
 	return strconv.FormatInt(x.Key.ID, 10)
 }
 
-// NewKey sets incomplete key to model
-func (x *Model) NewKey(kind string) {
-	x.SetKey(datastore.IncompleteKey(kind, nil))
+// NewIncomplateKey sets an incomplete key to model
+func (x *Model) NewIncomplateKey(kind string, parent *datastore.Key) {
+	x.SetKey(datastore.IncompleteKey(kind, parent))
 }
+
+// NewKey sets incomplete key to model
+// func (x *Model) NewKey() {
+// 	x.SetKey(datastore.IncompleteKey(kind, nil))
+// }
 
 // StringIDModel is the base model which id is string
 // but can use both id key and name key
@@ -113,10 +122,15 @@ func (x *StringIDModel) SetNameID(kind string, name string) {
 	x.SetKey(datastore.NameKey(kind, name, nil))
 }
 
-// NewKey sets incomplete key to model
-func (x *StringIDModel) NewKey(kind string) {
-	x.SetKey(datastore.IncompleteKey(kind, nil))
+// NewIncomplateKey sets an incomplete key to model
+func (x *StringIDModel) NewIncomplateKey(kind string, parent *datastore.Key) {
+	x.SetKey(datastore.IncompleteKey(kind, parent))
 }
+
+// NewKey sets incomplete key to model
+// func (x *StringIDModel) NewKey(kind string) {
+// 	x.SetKey(datastore.IncompleteKey(kind, nil))
+// }
 
 // ID return id
 func (x *StringIDModel) ID() string {

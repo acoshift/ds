@@ -11,7 +11,6 @@ import (
 // Client type
 type Client struct {
 	*datastore.Client
-	AllocateIncompleteID bool
 }
 
 // NewClient creates new ds client which wrap datastore client

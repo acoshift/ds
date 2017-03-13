@@ -22,6 +22,7 @@ func (client *Client) RunInTx(ctx context.Context, f func(tx *Tx) error, opts ..
 // GetByKey retrieves model from datastore by key
 func (tx *Tx) GetByKey(key *datastore.Key, dst interface{}) error {
 	err := tx.Get(key, dst)
+	SetKey(key, dst)
 	if err != nil {
 		return err
 	}
@@ -41,6 +42,7 @@ func (tx *Tx) GetByKeys(keys []*datastore.Key, dst interface{}) error {
 	}
 
 	err := tx.GetMulti(keys, dst)
+	SetKeys(keys, dst)
 	if err != nil {
 		return err
 	}
@@ -116,8 +118,8 @@ func (tx *Tx) PutModels(src interface{}) ([]*datastore.PendingKey, error) {
 }
 
 // SaveModel saves model to datastore
-func (tx *Tx) SaveModel(kind string, src interface{}) (*datastore.PendingKey, error) {
-	beforeSave(kind, src)
+func (tx *Tx) SaveModel(src interface{}) (*datastore.PendingKey, error) {
+	beforeSave(src)
 
 	x := src.(KeyGetSetter)
 	key, err := tx.Put(x.GetKey(), x)
@@ -129,11 +131,11 @@ func (tx *Tx) SaveModel(kind string, src interface{}) (*datastore.PendingKey, er
 }
 
 // SaveModels saves models to datastore
-func (tx *Tx) SaveModels(kind string, src interface{}) ([]*datastore.PendingKey, error) {
+func (tx *Tx) SaveModels(src interface{}) ([]*datastore.PendingKey, error) {
 	xs := valueOf(src)
 	for i := 0; i < xs.Len(); i++ {
 		x := xs.Index(i).Interface()
-		beforeSave(kind, x)
+		beforeSave(x)
 	}
 	keys, err := tx.PutModels(src)
 	if err != nil {
