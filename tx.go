@@ -22,6 +22,7 @@ func (client *Client) RunInTx(ctx context.Context, f func(tx *Tx) error, opts ..
 // GetByKey retrieves model from datastore by key
 func (tx *Tx) GetByKey(key *datastore.Key, dst interface{}) error {
 	err := tx.Get(key, dst)
+	SetKey(key, dst)
 	if err != nil {
 		return err
 	}
@@ -41,6 +42,7 @@ func (tx *Tx) GetByKeys(keys []*datastore.Key, dst interface{}) error {
 	}
 
 	err := tx.GetMulti(keys, dst)
+	SetKeys(keys, dst)
 	if err != nil {
 		return err
 	}
