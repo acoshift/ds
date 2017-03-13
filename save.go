@@ -14,7 +14,9 @@ func beforeSave(src interface{}) {
 
 	// create new key
 	if x.GetKey() == nil {
-		x.NewKey()
+		if x, ok := src.(KeyNewer); ok {
+			x.NewKey()
+		}
 	}
 }
 

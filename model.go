@@ -20,6 +20,10 @@ type KeySetter interface {
 type KeyGetSetter interface {
 	KeyGetter
 	KeySetter
+}
+
+// KeyNewer interface
+type KeyNewer interface {
 	NewKey()
 }
 

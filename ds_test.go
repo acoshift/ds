@@ -18,8 +18,8 @@ type ExampleModel struct {
 	Value int
 }
 
-func (model *ExampleModel) NewKey() {
-	model.NewIncomplateKey("Test", nil)
+func (x *ExampleModel) NewKey() {
+	x.NewIncomplateKey("Test", nil)
 }
 
 type ExampleNotModel struct {
