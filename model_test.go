@@ -18,13 +18,13 @@ func TestModel(t *testing.T) {
 	x.SetKey(nil)
 	x.SetKey(datastore.IDKey("Test", int64(10), nil))
 	x.SetID("Test", 10)
-	x.NewKey("Test")
+	x.NewIncomplateKey("Test", nil)
 	if x.ID() != 0 {
 		t.Fatalf("expected id to be 0")
 	}
 
 	x = &Model{}
-	x.NewKey("Test")
+	x.NewIncomplateKey("Test", nil)
 	if x.GetKey() == nil {
 		t.Fatalf("expected key not nil")
 	}
@@ -58,13 +58,13 @@ func TestStringIDModel(t *testing.T) {
 	x.SetID("Test", 10)
 	x.SetStringID("Test", "aaa")
 	x.SetNameID("Test", "bbb")
-	x.NewKey("Test")
+	x.NewIncomplateKey("Test", nil)
 	if x.ID() != "" {
 		t.Fatalf("expected id to be empty")
 	}
 
 	x = &StringIDModel{}
-	x.NewKey("Test")
+	x.NewIncomplateKey("Test", nil)
 	if x.GetKey() == nil {
 		t.Fatalf("expected key not nil")
 	}

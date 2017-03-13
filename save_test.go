@@ -13,7 +13,7 @@ func TestSaveModel(t *testing.T) {
 		t.Fatal(err)
 	}
 	x := &ExampleModel{Name: "Test1", Value: 1}
-	err = client.SaveModel(ctx, "ExampleModel", x)
+	err = client.SaveModel(ctx, x)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +44,7 @@ func TestSaveModels(t *testing.T) {
 		{Name: "Test1", Value: 1},
 		{Name: "Test2", Value: 2},
 	}
-	err = client.SaveModels(ctx, "Test", xs)
+	err = client.SaveModels(ctx, xs)
 	if err != nil {
 		t.Fatal(err)
 	}

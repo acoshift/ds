@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-func beforeSave(kind string, src interface{}) {
+func beforeSave(src interface{}) {
 	x := src.(KeyGetSetter)
 
 	// stamp model
@@ -13,16 +13,15 @@ func beforeSave(kind string, src interface{}) {
 	}
 
 	// create new key
-	if x.GetKey() == nil && kind != "" {
-		x.NewKey(kind)
+	if x.GetKey() == nil {
+		x.NewKey()
 	}
 }
 
 // SaveModel saves model to datastore
-// kind is optional, if key already set
-// if key was not set in model, will call NewKey with given kind
-func (client *Client) SaveModel(ctx context.Context, kind string, src interface{}) error {
-	beforeSave(kind, src)
+// if key was not set in model, will call NewKey
+func (client *Client) SaveModel(ctx context.Context, src interface{}) error {
+	beforeSave(src)
 
 	x := src.(KeyGetSetter)
 	key, err := client.Put(ctx, x.GetKey(), x)
@@ -35,11 +34,11 @@ func (client *Client) SaveModel(ctx context.Context, kind string, src interface{
 
 // SaveModels saves models to datastore
 // see more in SaveModel
-func (client *Client) SaveModels(ctx context.Context, kind string, src interface{}) error {
+func (client *Client) SaveModels(ctx context.Context, src interface{}) error {
 	xs := valueOf(src)
 	for i := 0; i < xs.Len(); i++ {
 		x := xs.Index(i).Interface()
-		beforeSave(kind, x)
+		beforeSave(x)
 	}
 	err := client.PutModels(ctx, src)
 	if err != nil {
