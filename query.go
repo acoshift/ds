@@ -13,11 +13,7 @@ type Query func(q *datastore.Query) *datastore.Query
 // Query run Get All
 // dst is *[]*Model
 func (client *Client) Query(ctx context.Context, kind string, dst interface{}, qs ...Query) error {
-	q := datastore.NewQuery(kind)
-	for _, setter := range qs {
-		q = setter(q)
-	}
-
+	q := prepareQuery(kind, qs)
 	_, err := client.GetAll(ctx, q, dst)
 	if err != nil {
 		return err
@@ -27,11 +23,7 @@ func (client *Client) Query(ctx context.Context, kind string, dst interface{}, q
 
 // QueryFirst run Get to get the first result
 func (client *Client) QueryFirst(ctx context.Context, kind string, dst interface{}, qs ...Query) error {
-	q := datastore.NewQuery(kind)
-	for _, setter := range qs {
-		q = setter(q)
-	}
-
+	q := prepareQuery(kind, qs)
 	_, err := client.Run(ctx, q).Next(dst)
 	if err != nil {
 		return err
@@ -41,12 +33,7 @@ func (client *Client) QueryFirst(ctx context.Context, kind string, dst interface
 
 // QueryKeys queries only key
 func (client *Client) QueryKeys(ctx context.Context, kind string, qs ...Query) ([]*datastore.Key, error) {
-	q := datastore.NewQuery(kind)
-	for _, setter := range qs {
-		q = setter(q)
-	}
-	q = q.KeysOnly()
-
+	q := prepareQuery(kind, qs).KeysOnly()
 	keys, err := client.GetAll(ctx, q, nil)
 	if err != nil {
 		return nil, err
@@ -56,11 +43,7 @@ func (client *Client) QueryKeys(ctx context.Context, kind string, qs ...Query) (
 
 // QueryCount counts entity
 func (client *Client) QueryCount(ctx context.Context, kind string, qs ...Query) (int, error) {
-	q := datastore.NewQuery(kind)
-	for _, setter := range qs {
-		q = setter(q)
-	}
-
+	q := prepareQuery(kind, qs)
 	return client.Count(ctx, q)
 }
 
