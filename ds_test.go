@@ -82,5 +82,5 @@ func prepareData(client *Client) []*datastore.Key {
 
 func removeData(client *Client) {
 	keys, _ := client.QueryKeys(ctx, "Test")
-	client.DeleteMulti(ctx, keys)
+	client.DeleteByKeys(ctx, keys)
 }

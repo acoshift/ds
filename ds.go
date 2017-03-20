@@ -10,7 +10,7 @@ import (
 
 // Client type
 type Client struct {
-	*datastore.Client
+	c *datastore.Client
 }
 
 // NewClient creates new ds client which wrap datastore client
@@ -19,5 +19,5 @@ func NewClient(ctx context.Context, projectID string, opts ...option.ClientOptio
 	if err != nil {
 		return nil, err
 	}
-	return &Client{Client: client}, nil
+	return &Client{c: client}, nil
 }

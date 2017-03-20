@@ -61,12 +61,12 @@ func ExtractKeys(src interface{}) []*datastore.Key {
 }
 
 // AllocateIDModel allocates id for model
-func (client *Client) AllocateIDModel(ctx context.Context, kind string, src interface{}) error {
+func (c *Client) AllocateIDModel(ctx context.Context, kind string, src interface{}) error {
 	m := src.(KeyGetSetter)
 	if m.GetKey() == nil {
 		m.SetKey(datastore.IncompleteKey(kind, nil))
 	}
-	keys, err := client.AllocateIDs(ctx, []*datastore.Key{m.GetKey()})
+	keys, err := c.c.AllocateIDs(ctx, []*datastore.Key{m.GetKey()})
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (client *Client) AllocateIDModel(ctx context.Context, kind string, src inte
 }
 
 // AllocateIDModels allocates id for models
-func (client *Client) AllocateIDModels(ctx context.Context, kind string, src interface{}) error {
+func (c *Client) AllocateIDModels(ctx context.Context, kind string, src interface{}) error {
 	xs := valueOf(src)
 	keys := make([]*datastore.Key, xs.Len())
 	for i := range keys {
@@ -86,7 +86,7 @@ func (client *Client) AllocateIDModels(ctx context.Context, kind string, src int
 		}
 		keys[i] = x.(KeyGetter).GetKey()
 	}
-	keys, err := client.AllocateIDs(ctx, keys)
+	keys, err := c.c.AllocateIDs(ctx, keys)
 	if err != nil {
 		return err
 	}

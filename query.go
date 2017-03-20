@@ -12,9 +12,9 @@ type Query func(q *datastore.Query) *datastore.Query
 
 // Query run Get All
 // dst is *[]*Model
-func (client *Client) Query(ctx context.Context, kind string, dst interface{}, qs ...Query) error {
+func (c *Client) Query(ctx context.Context, kind string, dst interface{}, qs ...Query) error {
 	q := prepareQuery(kind, qs)
-	_, err := client.GetAll(ctx, q, dst)
+	_, err := c.c.GetAll(ctx, q, dst)
 	if err != nil {
 		return err
 	}
@@ -22,9 +22,9 @@ func (client *Client) Query(ctx context.Context, kind string, dst interface{}, q
 }
 
 // QueryFirst run Get to get the first result
-func (client *Client) QueryFirst(ctx context.Context, kind string, dst interface{}, qs ...Query) error {
+func (c *Client) QueryFirst(ctx context.Context, kind string, dst interface{}, qs ...Query) error {
 	q := prepareQuery(kind, qs)
-	_, err := client.Run(ctx, q).Next(dst)
+	_, err := c.c.Run(ctx, q).Next(dst)
 	if err != nil {
 		return err
 	}
@@ -32,9 +32,9 @@ func (client *Client) QueryFirst(ctx context.Context, kind string, dst interface
 }
 
 // QueryKeys queries only key
-func (client *Client) QueryKeys(ctx context.Context, kind string, qs ...Query) ([]*datastore.Key, error) {
+func (c *Client) QueryKeys(ctx context.Context, kind string, qs ...Query) ([]*datastore.Key, error) {
 	q := prepareQuery(kind, qs).KeysOnly()
-	keys, err := client.GetAll(ctx, q, nil)
+	keys, err := c.c.GetAll(ctx, q, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -42,9 +42,9 @@ func (client *Client) QueryKeys(ctx context.Context, kind string, qs ...Query) (
 }
 
 // QueryCount counts entity
-func (client *Client) QueryCount(ctx context.Context, kind string, qs ...Query) (int, error) {
+func (c *Client) QueryCount(ctx context.Context, kind string, qs ...Query) (int, error) {
 	q := prepareQuery(kind, qs)
-	return client.Count(ctx, q)
+	return c.c.Count(ctx, q)
 }
 
 // Query Helper functions

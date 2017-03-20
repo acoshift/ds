@@ -13,8 +13,8 @@ type Tx struct {
 }
 
 // RunInTx is the RunInTransaction wrapper
-func (client *Client) RunInTx(ctx context.Context, f func(tx *Tx) error, opts ...datastore.TransactionOption) (*datastore.Commit, error) {
-	return client.RunInTransaction(ctx, func(t *datastore.Transaction) error {
+func (c *Client) RunInTx(ctx context.Context, f func(tx *Tx) error, opts ...datastore.TransactionOption) (*datastore.Commit, error) {
+	return c.c.RunInTransaction(ctx, func(t *datastore.Transaction) error {
 		return f(&Tx{t})
 	})
 }

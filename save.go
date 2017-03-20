@@ -22,11 +22,11 @@ func beforeSave(src interface{}) {
 
 // SaveModel saves model to datastore
 // if key was not set in model, will call NewKey
-func (client *Client) SaveModel(ctx context.Context, src interface{}) error {
+func (c *Client) SaveModel(ctx context.Context, src interface{}) error {
 	beforeSave(src)
 
 	x := src.(KeyGetSetter)
-	key, err := client.Put(ctx, x.GetKey(), x)
+	key, err := c.c.Put(ctx, x.GetKey(), x)
 	x.SetKey(key)
 	if err != nil {
 		return err
@@ -36,13 +36,13 @@ func (client *Client) SaveModel(ctx context.Context, src interface{}) error {
 
 // SaveModels saves models to datastore
 // see more in SaveModel
-func (client *Client) SaveModels(ctx context.Context, src interface{}) error {
+func (c *Client) SaveModels(ctx context.Context, src interface{}) error {
 	xs := valueOf(src)
 	for i := 0; i < xs.Len(); i++ {
 		x := xs.Index(i).Interface()
 		beforeSave(x)
 	}
-	err := client.PutModels(ctx, src)
+	err := c.PutModels(ctx, src)
 	if err != nil {
 		return err
 	}
