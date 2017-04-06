@@ -9,6 +9,9 @@ import (
 
 // GetByKey retrieves model from datastore by key
 func (client *Client) GetByKey(ctx context.Context, key *datastore.Key, dst interface{}) error {
+	if client.Cache != nil && client.Cache.Get(key, dst) == nil {
+		return nil
+	}
 	err := client.Get(ctx, key, dst)
 	SetKey(key, dst)
 	if err != nil {

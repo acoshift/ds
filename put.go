@@ -8,9 +8,16 @@ import (
 
 // PutModel puts a model to datastore
 func (client *Client) PutModel(ctx context.Context, src interface{}) error {
-	x := src.(KeyGetSetter)
-	_, err := client.Put(ctx, x.GetKey(), x)
-	return err
+	key := src.(KeyGetSetter).GetKey()
+	key, err := client.Put(ctx, key, src)
+	SetKey(key, src)
+	if err != nil {
+		return err
+	}
+	if client.Cache != nil {
+		client.Cache.Del(key)
+	}
+	return nil
 }
 
 // PutModels puts models to datastore
@@ -23,5 +30,8 @@ func (client *Client) PutModels(ctx context.Context, src interface{}) error {
 	}
 	keys, err := client.PutMulti(ctx, keys, src)
 	SetKeys(keys, src)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }

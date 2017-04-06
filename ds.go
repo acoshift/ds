@@ -11,6 +11,7 @@ import (
 // Client type
 type Client struct {
 	*datastore.Client
+	Cache Cache
 }
 
 // NewClient creates new ds client which wrap datastore client
