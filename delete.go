@@ -6,6 +6,24 @@ import (
 	"cloud.google.com/go/datastore"
 )
 
+// DeleteByKey deletes data from datastore by key
+func (client *Client) DeleteByKey(ctx context.Context, key *datastore.Key) error {
+	err := client.Delete(ctx, key)
+	if client.Cache != nil {
+		client.Cache.Del(key)
+	}
+	return err
+}
+
+// DeleteByKeys deletes data from datastore by keys
+func (client *Client) DeleteByKeys(ctx context.Context, keys []*datastore.Key) error {
+	err := client.DeleteMulti(ctx, keys)
+	if client.Cache != nil {
+		client.Cache.DelMulti(keys)
+	}
+	return err
+}
+
 // DeleteByID deletes data from datastore by IDKey
 func (client *Client) DeleteByID(ctx context.Context, kind string, id int64) error {
 	if id == 0 {
