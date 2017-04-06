@@ -3,6 +3,7 @@ package redis
 import (
 	"bytes"
 	"encoding/gob"
+	"reflect"
 	"time"
 
 	"cloud.google.com/go/datastore"
@@ -45,7 +46,25 @@ func (cache *Cache) Get(key *datastore.Key, dst interface{}) error {
 }
 
 // GetMulti gets multi data
-func (cache *Cache) GetMulti(keys []*datastore.Key, dst []interface{}) error {
+func (cache *Cache) GetMulti(keys []*datastore.Key, dst interface{}) error {
+	db := cache.Pool.Get()
+	defer db.Close()
+	for _, key := range keys {
+		db.Send("GET", cache.Prefix+key.String())
+	}
+	err := db.Flush()
+	if err != nil {
+		return err
+	}
+	for i := range keys {
+		b, err := redis.Bytes(db.Receive())
+		if err != nil {
+			return err
+		}
+		if len(b) > 0 {
+			decode(b, reflect.Indirect(reflect.ValueOf(dst)).Index(i).Interface())
+		}
+	}
 	return nil
 }
 
@@ -67,7 +86,21 @@ func (cache *Cache) Set(key *datastore.Key, src interface{}) error {
 
 // SetMulti sets data
 func (cache *Cache) SetMulti(keys []*datastore.Key, src interface{}) error {
-	return nil
+	db := cache.Pool.Get()
+	defer db.Close()
+	db.Send("MULTI")
+	for i, key := range keys {
+		b, err := encode(reflect.Indirect(reflect.ValueOf(src)).Index(i).Interface())
+		if err != nil {
+			return err
+		}
+		if cache.TTL > 0 {
+			db.Send("SETEX", cache.Prefix+key.String(), int(cache.TTL/time.Second), b)
+		}
+		db.Send("SET", cache.Prefix+key.String(), b)
+	}
+	_, err := db.Do("EXEC")
+	return err
 }
 
 // Del dels data
@@ -82,8 +115,10 @@ func (cache *Cache) Del(key *datastore.Key) error {
 func (cache *Cache) DelMulti(keys []*datastore.Key) error {
 	db := cache.Pool.Get()
 	defer db.Close()
+	db.Send("MULTI")
 	for _, key := range keys {
 		db.Send("DEL", cache.Prefix+key.String())
 	}
-	return db.Flush()
+	_, err := db.Do("EXEC")
+	return err
 }

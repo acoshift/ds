@@ -32,6 +32,32 @@ func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst 
 		dst = rs.Interface()
 	}
 
+	if client.Cache != nil {
+		err := client.Cache.GetMulti(keys, dst)
+		if err == nil {
+			nfKeys := []*datastore.Key{}
+			nfMap := []int{}
+			rf := valueOf(dst)
+			for i := 0; i < rf.Len(); i++ {
+				if rf.Index(i).IsNil() {
+					nfKeys = append(nfKeys, keys[i])
+					nfMap = append(nfMap, i)
+				}
+			}
+			l := len(nfKeys)
+			nfDstRf := reflect.MakeSlice(rf.Type(), l, l)
+			err := client.GetMulti(ctx, keys, nfDstRf.Interface())
+			for i, k := range nfMap {
+				rf.Index(k).Set(nfDstRf.Index(i))
+			}
+			SetKeys(keys, dst)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+
 	err := client.GetMulti(ctx, keys, dst)
 	SetKeys(keys, dst)
 	if err != nil {
