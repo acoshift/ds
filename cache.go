@@ -1,6 +1,8 @@
 package ds
 
 import (
+	"errors"
+
 	"cloud.google.com/go/datastore"
 )
 
@@ -13,3 +15,8 @@ type Cache interface {
 	Del(*datastore.Key) error
 	DelMulti([]*datastore.Key) error
 }
+
+// Errors
+var (
+	ErrCacheNotFound = errors.New("ds: cache not found")
+)
