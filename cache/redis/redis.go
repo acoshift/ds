@@ -70,6 +70,9 @@ func (cache *Cache) GetMulti(keys []*datastore.Key, dst interface{}) error {
 
 // Set sets data
 func (cache *Cache) Set(key *datastore.Key, src interface{}) error {
+	if key == nil {
+		return nil
+	}
 	db := cache.Pool.Get()
 	defer db.Close()
 	b, err := encode(src)
@@ -90,6 +93,9 @@ func (cache *Cache) SetMulti(keys []*datastore.Key, src interface{}) error {
 	defer db.Close()
 	db.Send("MULTI")
 	for i, key := range keys {
+		if key == nil {
+			continue
+		}
 		b, err := encode(reflect.Indirect(reflect.ValueOf(src)).Index(i).Interface())
 		if err != nil {
 			return err
@@ -105,6 +111,9 @@ func (cache *Cache) SetMulti(keys []*datastore.Key, src interface{}) error {
 
 // Del dels data
 func (cache *Cache) Del(key *datastore.Key) error {
+	if key == nil {
+		return nil
+	}
 	db := cache.Pool.Get()
 	defer db.Close()
 	_, err := db.Do("DEL", cache.Prefix+key.String())
@@ -117,6 +126,9 @@ func (cache *Cache) DelMulti(keys []*datastore.Key) error {
 	defer db.Close()
 	db.Send("MULTI")
 	for _, key := range keys {
+		if key == nil {
+			continue
+		}
 		db.Send("DEL", cache.Prefix+key.String())
 	}
 	_, err := db.Do("EXEC")

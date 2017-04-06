@@ -14,6 +14,9 @@ func (client *Client) GetByKey(ctx context.Context, key *datastore.Key, dst inte
 	}
 	err := client.Get(ctx, key, dst)
 	SetKey(key, dst)
+	if client.Cache != nil {
+		client.Cache.Set(key, dst)
+	}
 	if err != nil {
 		return err
 	}
@@ -60,6 +63,9 @@ func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst 
 
 	err := client.GetMulti(ctx, keys, dst)
 	SetKeys(keys, dst)
+	if client.Cache != nil {
+		client.Cache.SetMulti(keys, dst)
+	}
 	if err != nil {
 		return err
 	}
