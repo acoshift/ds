@@ -35,7 +35,7 @@ func decode(b []byte, v interface{}) error {
 // Get gets data
 func (cache *Cache) Get(key *datastore.Key, dst interface{}) error {
 	if cache.Skip != nil && cache.Skip(key) {
-		return nil
+		return ds.ErrCacheNotFound
 	}
 
 	db := cache.Pool.Get()
