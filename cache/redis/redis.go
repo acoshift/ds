@@ -16,6 +16,7 @@ type Cache struct {
 	Pool   *redis.Pool
 	Prefix string
 	TTL    time.Duration
+	Skip   func(*datastore.Key) bool
 }
 
 func encode(v interface{}) ([]byte, error) {
@@ -33,6 +34,10 @@ func decode(b []byte, v interface{}) error {
 
 // Get gets data
 func (cache *Cache) Get(key *datastore.Key, dst interface{}) error {
+	if cache.Skip != nil && cache.Skip(key) {
+		return nil
+	}
+
 	db := cache.Pool.Get()
 	defer db.Close()
 	b, err := redis.Bytes(db.Do("GET", cache.Prefix+key.String()))
@@ -73,6 +78,10 @@ func (cache *Cache) Set(key *datastore.Key, src interface{}) error {
 	if key == nil {
 		return nil
 	}
+	if cache.Skip != nil && cache.Skip(key) {
+		return nil
+	}
+
 	db := cache.Pool.Get()
 	defer db.Close()
 	b, err := encode(src)
@@ -96,6 +105,9 @@ func (cache *Cache) SetMulti(keys []*datastore.Key, src interface{}) error {
 		if key == nil {
 			continue
 		}
+		if cache.Skip != nil && cache.Skip(key) {
+			continue
+		}
 		b, err := encode(reflect.Indirect(reflect.ValueOf(src)).Index(i).Interface())
 		if err != nil {
 			return err
@@ -114,6 +126,10 @@ func (cache *Cache) Del(key *datastore.Key) error {
 	if key == nil {
 		return nil
 	}
+	if cache.Skip != nil && cache.Skip(key) {
+		return nil
+	}
+
 	db := cache.Pool.Get()
 	defer db.Close()
 	_, err := db.Do("DEL", cache.Prefix+key.String())
@@ -127,6 +143,9 @@ func (cache *Cache) DelMulti(keys []*datastore.Key) error {
 	db.Send("MULTI")
 	for _, key := range keys {
 		if key == nil {
+			continue
+		}
+		if cache.Skip != nil && cache.Skip(key) {
 			continue
 		}
 		db.Send("DEL", cache.Prefix+key.String())
