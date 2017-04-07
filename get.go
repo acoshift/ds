@@ -23,6 +23,46 @@ func (client *Client) GetByKey(ctx context.Context, key *datastore.Key, dst inte
 	return nil
 }
 
+func (client *Client) getByKeys(ctx context.Context, keys []*datastore.Key, dst interface{}) error {
+	var err error
+	l := len(keys)
+	p := 1000
+	if l > p {
+		rfDst := valueOf(dst)
+		for i := 0; i < l/p+1; i++ {
+			m := (i + 1) * p
+			if m > l {
+				m = l
+			}
+			if i*p == m {
+				break
+			}
+			e := client.GetMulti(ctx, keys[i*p:m], rfDst.Slice(i*p, m).Interface())
+			if e != nil {
+				if err == nil {
+					err = e
+				} else {
+					if errs, ok := err.(datastore.MultiError); ok {
+						err = append(errs, e)
+					} else {
+						err = datastore.MultiError{err, e}
+					}
+				}
+			}
+		}
+	} else {
+		err = client.GetMulti(ctx, keys, dst)
+	}
+	SetKeys(keys, dst)
+	if client.Cache != nil {
+		client.Cache.SetMulti(keys, dst)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetByKeys retrieves models from datastore by keys
 func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst interface{}) error {
 	// prepare slice if dst is pointer to 0 len slice
@@ -49,7 +89,7 @@ func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst 
 			}
 			l := len(nfKeys)
 			nfDstRf := reflect.MakeSlice(rf.Type(), l, l)
-			err := client.GetMulti(ctx, keys, nfDstRf.Interface())
+			err := client.getByKeys(ctx, keys, nfDstRf.Interface())
 			for i, k := range nfMap {
 				rf.Index(k).Set(nfDstRf.Index(i))
 			}
@@ -61,15 +101,7 @@ func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst 
 		}
 	}
 
-	err := client.GetMulti(ctx, keys, dst)
-	SetKeys(keys, dst)
-	if client.Cache != nil {
-		client.Cache.SetMulti(keys, dst)
-	}
-	if err != nil {
-		return err
-	}
-	return nil
+	return client.getByKeys(ctx, keys, dst)
 }
 
 // GetByModel retrieves model from datastore by key from model
@@ -123,9 +155,9 @@ func (client *Client) GetByNames(ctx context.Context, kind string, names []strin
 
 // GetByQuery retrieves model from datastore by datastore query
 func (client *Client) GetByQuery(ctx context.Context, q *datastore.Query, dst interface{}) error {
-	_, err := client.GetAll(ctx, q, dst)
+	keys, err := client.GetAll(ctx, q.KeysOnly(), nil)
 	if err != nil {
 		return err
 	}
-	return nil
+	return client.GetByKeys(ctx, keys, dst)
 }
