@@ -10,13 +10,30 @@ import (
 // Tx is the datastore transaction wrapper
 type Tx struct {
 	*datastore.Transaction
+	invalidateKeys []*datastore.Key
 }
 
 // RunInTx is the RunInTransaction wrapper
 func (client *Client) RunInTx(ctx context.Context, f func(tx *Tx) error, opts ...datastore.TransactionOption) (*datastore.Commit, error) {
-	return client.RunInTransaction(ctx, func(t *datastore.Transaction) error {
-		return f(&Tx{t})
+	var tx *Tx
+	commit, err := client.RunInTransaction(ctx, func(t *datastore.Transaction) error {
+		tx = &Tx{t, nil}
+		return f(tx)
 	})
+	if err == nil && client.Cache != nil && len(tx.invalidateKeys) > 0 {
+		// find unique keys
+		mapKey := map[string]*datastore.Key{}
+		for _, key := range tx.invalidateKeys {
+			mapKey[key.String()] = key
+		}
+		uKeys := []*datastore.Key{}
+		for _, k := range mapKey {
+			uKeys = append(uKeys, k)
+		}
+		client.Cache.DelMulti(uKeys)
+	}
+
+	return commit, err
 }
 
 // GetByKey retrieves model from datastore by key
@@ -99,10 +116,14 @@ func (tx *Tx) GetByNames(kind string, names []string, dst interface{}) error {
 }
 
 // PutModel puts a model to datastore
-func (tx *Tx) PutModel(src interface{}) error {
+func (tx *Tx) PutModel(src interface{}) (*datastore.PendingKey, error) {
 	x := src.(KeyGetSetter)
-	_, err := tx.Put(x.GetKey(), x)
-	return err
+	key := x.GetKey()
+	pKey, err := tx.Put(key, x)
+	if key != nil && !key.Incomplete() {
+		tx.invalidateKeys = append(tx.invalidateKeys, key)
+	}
+	return pKey, err
 }
 
 // PutModels puts models to datastore
@@ -114,20 +135,19 @@ func (tx *Tx) PutModels(src interface{}) ([]*datastore.PendingKey, error) {
 		keys[i] = x.(KeyGetter).GetKey()
 	}
 	// TODO: store pending key inside model ?
-	return tx.PutMulti(keys, src)
+	ks, err := tx.PutMulti(keys, src)
+	for _, key := range keys {
+		if key != nil && !key.Incomplete() {
+			tx.invalidateKeys = append(tx.invalidateKeys, key)
+		}
+	}
+	return ks, err
 }
 
 // SaveModel saves model to datastore
 func (tx *Tx) SaveModel(src interface{}) (*datastore.PendingKey, error) {
 	beforeSave(src)
-
-	x := src.(KeyGetSetter)
-	key, err := tx.Put(x.GetKey(), x)
-	// x.SetKey(key)
-	if err != nil {
-		return nil, err
-	}
-	return key, nil
+	return tx.PutModel(src)
 }
 
 // SaveModels saves models to datastore
@@ -137,9 +157,5 @@ func (tx *Tx) SaveModels(src interface{}) ([]*datastore.PendingKey, error) {
 		x := xs.Index(i).Interface()
 		beforeSave(x)
 	}
-	keys, err := tx.PutModels(src)
-	if err != nil {
-		return nil, err
-	}
-	return keys, nil
+	return tx.PutModels(src)
 }
