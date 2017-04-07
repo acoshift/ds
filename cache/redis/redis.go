@@ -87,7 +87,7 @@ func (cache *Cache) GetMulti(keys []*datastore.Key, dst interface{}) error {
 
 // Set sets data
 func (cache *Cache) Set(key *datastore.Key, src interface{}) error {
-	if key == nil {
+	if key == nil || src == nil {
 		return nil
 	}
 	if cache.Skip != nil && cache.Skip(key) {
@@ -121,7 +121,11 @@ func (cache *Cache) SetMulti(keys []*datastore.Key, src interface{}) error {
 		if cache.Skip != nil && cache.Skip(key) {
 			continue
 		}
-		b, err := encode(reflect.Indirect(reflect.ValueOf(src)).Index(i).Interface())
+		s := reflect.Indirect(reflect.ValueOf(src)).Index(i)
+		if s.IsNil() {
+			continue
+		}
+		b, err := encode(s.Interface())
 		if err != nil {
 			return err
 		}
