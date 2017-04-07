@@ -13,10 +13,11 @@ import (
 
 // Cache implement Cache interface
 type Cache struct {
-	Pool   *redis.Pool
-	Prefix string
-	TTL    time.Duration
-	Skip   func(*datastore.Key) bool
+	Pool      *redis.Pool
+	Prefix    string
+	TTL       time.Duration
+	ExtendTTL bool
+	Skip      func(*datastore.Key) bool
 }
 
 func encode(v interface{}) ([]byte, error) {
@@ -40,12 +41,16 @@ func (cache *Cache) Get(key *datastore.Key, dst interface{}) error {
 
 	db := cache.Pool.Get()
 	defer db.Close()
-	b, err := redis.Bytes(db.Do("GET", cache.Prefix+key.String()))
+	k := cache.Prefix + key.String()
+	b, err := redis.Bytes(db.Do("GET", k))
 	if err != nil {
 		return err
 	}
 	if len(b) == 0 {
 		return ds.ErrCacheNotFound
+	}
+	if cache.ExtendTTL {
+		db.Do("EXPIRE", k, int(cache.TTL/time.Second))
 	}
 	return decode(b, dst)
 }
@@ -69,6 +74,13 @@ func (cache *Cache) GetMulti(keys []*datastore.Key, dst interface{}) error {
 		if len(b) > 0 {
 			decode(b, reflect.Indirect(reflect.ValueOf(dst)).Index(i).Interface())
 		}
+	}
+	if cache.ExtendTTL {
+		ttl := int(cache.TTL / time.Second)
+		for _, key := range keys {
+			db.Send("EXPIRE", cache.Prefix+key.String(), ttl)
+		}
+		db.Flush()
 	}
 	return nil
 }
@@ -100,6 +112,7 @@ func (cache *Cache) Set(key *datastore.Key, src interface{}) error {
 func (cache *Cache) SetMulti(keys []*datastore.Key, src interface{}) error {
 	db := cache.Pool.Get()
 	defer db.Close()
+	ttl := int(cache.TTL / time.Second)
 	db.Send("MULTI")
 	for i, key := range keys {
 		if key == nil {
@@ -113,7 +126,7 @@ func (cache *Cache) SetMulti(keys []*datastore.Key, src interface{}) error {
 			return err
 		}
 		if cache.TTL > 0 {
-			db.Send("SETEX", cache.Prefix+key.String(), int(cache.TTL/time.Second), b)
+			db.Send("SETEX", cache.Prefix+key.String(), ttl, b)
 		}
 		db.Send("SET", cache.Prefix+key.String(), b)
 	}
