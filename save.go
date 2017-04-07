@@ -24,10 +24,7 @@ func beforeSave(src interface{}) {
 // if key was not set in model, will call NewKey
 func (client *Client) SaveModel(ctx context.Context, src interface{}) error {
 	beforeSave(src)
-
-	x := src.(KeyGetSetter)
-	key, err := client.Put(ctx, x.GetKey(), x)
-	x.SetKey(key)
+	err := client.PutModel(ctx, src)
 	if err != nil {
 		return err
 	}

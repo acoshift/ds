@@ -6,12 +6,30 @@ import (
 	"cloud.google.com/go/datastore"
 )
 
+// DeleteByKey deletes data from datastore by key
+func (client *Client) DeleteByKey(ctx context.Context, key *datastore.Key) error {
+	err := client.Delete(ctx, key)
+	if client.Cache != nil {
+		client.Cache.Del(key)
+	}
+	return err
+}
+
+// DeleteByKeys deletes data from datastore by keys
+func (client *Client) DeleteByKeys(ctx context.Context, keys []*datastore.Key) error {
+	err := client.DeleteMulti(ctx, keys)
+	if client.Cache != nil {
+		client.Cache.DelMulti(keys)
+	}
+	return err
+}
+
 // DeleteByID deletes data from datastore by IDKey
 func (client *Client) DeleteByID(ctx context.Context, kind string, id int64) error {
 	if id == 0 {
 		return datastore.ErrInvalidKey
 	}
-	return client.Delete(ctx, datastore.IDKey(kind, id, nil))
+	return client.DeleteByKey(ctx, datastore.IDKey(kind, id, nil))
 }
 
 // DeleteByStringID deletes data from datastore by IDKey
@@ -20,7 +38,7 @@ func (client *Client) DeleteByStringID(ctx context.Context, kind string, id stri
 	if tid == 0 {
 		return datastore.ErrInvalidKey
 	}
-	return client.Delete(ctx, datastore.IDKey(kind, tid, nil))
+	return client.DeleteByKey(ctx, datastore.IDKey(kind, tid, nil))
 }
 
 // DeleteByIDs deletes data from datastore by IDKeys
@@ -32,7 +50,7 @@ func (client *Client) DeleteByIDs(ctx context.Context, kind string, ids []int64)
 		}
 		keys[i] = datastore.IDKey(kind, id, nil)
 	}
-	return client.DeleteMulti(ctx, keys)
+	return client.DeleteByKeys(ctx, keys)
 }
 
 // DeleteByStringIDs deletes data from datastore by IDKeys
@@ -46,7 +64,7 @@ func (client *Client) DeleteByStringIDs(ctx context.Context, kind string, ids []
 		}
 		keys[i] = datastore.IDKey(k, tid, nil)
 	}
-	return client.DeleteMulti(ctx, keys)
+	return client.DeleteByKeys(ctx, keys)
 }
 
 // DeleteByName deletes data from datastore by NameKey
@@ -54,7 +72,7 @@ func (client *Client) DeleteByName(ctx context.Context, kind string, name string
 	if len(name) == 0 {
 		return datastore.ErrInvalidKey
 	}
-	return client.Delete(ctx, datastore.NameKey(kind, name, nil))
+	return client.DeleteByKey(ctx, datastore.NameKey(kind, name, nil))
 }
 
 // DeleteByNames deletes data from datastore by NameKeys
@@ -66,7 +84,7 @@ func (client *Client) DeleteByNames(ctx context.Context, kind string, names []st
 		}
 		keys[i] = datastore.NameKey(kind, name, nil)
 	}
-	return client.DeleteMulti(ctx, keys)
+	return client.DeleteByKeys(ctx, keys)
 }
 
 // DeleteModel deletes data by get key from model
@@ -75,7 +93,7 @@ func (client *Client) DeleteModel(ctx context.Context, src interface{}) error {
 	if key == nil {
 		return datastore.ErrInvalidKey
 	}
-	return client.Delete(ctx, key)
+	return client.DeleteByKey(ctx, key)
 }
 
 // DeleteModels deletes data by get keys from models
@@ -84,5 +102,5 @@ func (client *Client) DeleteModels(ctx context.Context, src interface{}) error {
 	if len(keys) == 0 {
 		return datastore.ErrInvalidKey
 	}
-	return client.DeleteMulti(ctx, keys)
+	return client.DeleteByKeys(ctx, keys)
 }

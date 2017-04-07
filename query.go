@@ -17,12 +17,13 @@ func (client *Client) Query(ctx context.Context, kind string, dst interface{}, q
 	for _, setter := range qs {
 		q = setter(q)
 	}
+	q = q.KeysOnly()
 
-	_, err := client.GetAll(ctx, q, dst)
+	keys, err := client.GetAll(ctx, q, nil)
 	if err != nil {
 		return err
 	}
-	return nil
+	return client.GetByKeys(ctx, keys, dst)
 }
 
 // QueryFirst run Get to get the first result
@@ -31,12 +32,13 @@ func (client *Client) QueryFirst(ctx context.Context, kind string, dst interface
 	for _, setter := range qs {
 		q = setter(q)
 	}
+	q = q.Limit(1).KeysOnly()
 
-	_, err := client.Run(ctx, q).Next(dst)
+	key, err := client.Run(ctx, q).Next(nil)
 	if err != nil {
 		return err
 	}
-	return nil
+	return client.GetByKey(ctx, key, dst)
 }
 
 // QueryKeys queries only key
