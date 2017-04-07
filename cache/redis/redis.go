@@ -127,8 +127,9 @@ func (cache *Cache) SetMulti(keys []*datastore.Key, src interface{}) error {
 		}
 		if cache.TTL > 0 {
 			db.Send("SETEX", cache.Prefix+key.String(), ttl, b)
+		} else {
+			db.Send("SET", cache.Prefix+key.String(), b)
 		}
-		db.Send("SET", cache.Prefix+key.String(), b)
 	}
 	_, err := db.Do("EXEC")
 	return err
