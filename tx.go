@@ -10,7 +10,7 @@ import (
 // Tx is the datastore transaction wrapper
 type Tx struct {
 	*datastore.Transaction
-	invalidateKeys []*datastore.PendingKey
+	invalidateKeys []*datastore.Key
 }
 
 // RunInTx is the RunInTransaction wrapper
@@ -20,13 +20,12 @@ func (client *Client) RunInTx(ctx context.Context, f func(tx *Tx) error, opts ..
 		tx = &Tx{t, nil}
 		return f(tx)
 	})
-	if err == nil && client.Cache != nil {
+	if err == nil && client.Cache != nil && len(tx.invalidateKeys) > 0 {
+		// find unique keys
 		mapKey := map[string]*datastore.Key{}
-		for _, p := range tx.invalidateKeys {
-			key := commit.Key(p)
+		for _, key := range tx.invalidateKeys {
 			mapKey[key.String()] = key
 		}
-		// unique keys
 		uKeys := []*datastore.Key{}
 		for _, k := range mapKey {
 			uKeys = append(uKeys, k)
@@ -119,9 +118,12 @@ func (tx *Tx) GetByNames(kind string, names []string, dst interface{}) error {
 // PutModel puts a model to datastore
 func (tx *Tx) PutModel(src interface{}) (*datastore.PendingKey, error) {
 	x := src.(KeyGetSetter)
-	key, err := tx.Put(x.GetKey(), x)
-	tx.invalidateKeys = append(tx.invalidateKeys, key)
-	return key, err
+	key := x.GetKey()
+	pKey, err := tx.Put(key, x)
+	if key != nil && !key.Incomplete() {
+		tx.invalidateKeys = append(tx.invalidateKeys, key)
+	}
+	return pKey, err
 }
 
 // PutModels puts models to datastore
@@ -134,7 +136,11 @@ func (tx *Tx) PutModels(src interface{}) ([]*datastore.PendingKey, error) {
 	}
 	// TODO: store pending key inside model ?
 	ks, err := tx.PutMulti(keys, src)
-	tx.invalidateKeys = append(tx.invalidateKeys, ks...)
+	for _, key := range keys {
+		if key != nil && !key.Incomplete() {
+			tx.invalidateKeys = append(tx.invalidateKeys, key)
+		}
+	}
 	return ks, err
 }
 
