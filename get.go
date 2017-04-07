@@ -61,7 +61,35 @@ func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst 
 		}
 	}
 
-	err := client.GetMulti(ctx, keys, dst)
+	var err error
+	l := len(keys)
+	p := 1000
+	if l > p {
+		rfDst := valueOf(dst)
+		for i := 0; i < l/p+1; i++ {
+			m := (i + 1) * p
+			if l-m+1 < p {
+				m = l
+			}
+			if i*p == m {
+				break
+			}
+			e := client.GetMulti(ctx, keys[i*p:m], rfDst.Slice(i*p, m).Interface())
+			if e != nil {
+				if err == nil {
+					err = e
+				} else {
+					if errs, ok := err.(datastore.MultiError); ok {
+						err = append(errs, e)
+					} else {
+						err = datastore.MultiError{err, e}
+					}
+				}
+			}
+		}
+	} else {
+		err = client.GetMulti(ctx, keys, dst)
+	}
 	SetKeys(keys, dst)
 	if client.Cache != nil {
 		client.Cache.SetMulti(keys, dst)
