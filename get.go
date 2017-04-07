@@ -23,44 +23,7 @@ func (client *Client) GetByKey(ctx context.Context, key *datastore.Key, dst inte
 	return nil
 }
 
-// GetByKeys retrieves models from datastore by keys
-func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst interface{}) error {
-	// prepare slice if dst is pointer to 0 len slice
-	if rf := reflect.ValueOf(dst); rf.Kind() == reflect.Ptr {
-		rs := rf.Elem()
-		if rs.Kind() == reflect.Slice && rs.Len() == 0 {
-			l := len(keys)
-			rs.Set(reflect.MakeSlice(rs.Type(), l, l))
-		}
-		dst = rs.Interface()
-	}
-
-	if client.Cache != nil {
-		err := client.Cache.GetMulti(keys, dst)
-		if err == nil {
-			nfKeys := []*datastore.Key{}
-			nfMap := []int{}
-			rf := valueOf(dst)
-			for i := 0; i < rf.Len(); i++ {
-				if rf.Index(i).IsNil() {
-					nfKeys = append(nfKeys, keys[i])
-					nfMap = append(nfMap, i)
-				}
-			}
-			l := len(nfKeys)
-			nfDstRf := reflect.MakeSlice(rf.Type(), l, l)
-			err := client.GetMulti(ctx, keys, nfDstRf.Interface())
-			for i, k := range nfMap {
-				rf.Index(k).Set(nfDstRf.Index(i))
-			}
-			SetKeys(keys, dst)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-	}
-
+func (client *Client) getByKeys(ctx context.Context, keys []*datastore.Key, dst interface{}) error {
 	var err error
 	l := len(keys)
 	p := 1000
@@ -68,7 +31,7 @@ func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst 
 		rfDst := valueOf(dst)
 		for i := 0; i < l/p+1; i++ {
 			m := (i + 1) * p
-			if l-m+1 < p {
+			if m > l {
 				m = l
 			}
 			if i*p == m {
@@ -98,6 +61,47 @@ func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst 
 		return err
 	}
 	return nil
+}
+
+// GetByKeys retrieves models from datastore by keys
+func (client *Client) GetByKeys(ctx context.Context, keys []*datastore.Key, dst interface{}) error {
+	// prepare slice if dst is pointer to 0 len slice
+	if rf := reflect.ValueOf(dst); rf.Kind() == reflect.Ptr {
+		rs := rf.Elem()
+		if rs.Kind() == reflect.Slice && rs.Len() == 0 {
+			l := len(keys)
+			rs.Set(reflect.MakeSlice(rs.Type(), l, l))
+		}
+		dst = rs.Interface()
+	}
+
+	if client.Cache != nil {
+		err := client.Cache.GetMulti(keys, dst)
+		if err == nil {
+			nfKeys := []*datastore.Key{}
+			nfMap := []int{}
+			rf := valueOf(dst)
+			for i := 0; i < rf.Len(); i++ {
+				if rf.Index(i).IsNil() {
+					nfKeys = append(nfKeys, keys[i])
+					nfMap = append(nfMap, i)
+				}
+			}
+			l := len(nfKeys)
+			nfDstRf := reflect.MakeSlice(rf.Type(), l, l)
+			err := client.getByKeys(ctx, keys, nfDstRf.Interface())
+			for i, k := range nfMap {
+				rf.Index(k).Set(nfDstRf.Index(i))
+			}
+			SetKeys(keys, dst)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+
+	return client.getByKeys(ctx, keys, dst)
 }
 
 // GetByModel retrieves model from datastore by key from model
@@ -151,9 +155,9 @@ func (client *Client) GetByNames(ctx context.Context, kind string, names []strin
 
 // GetByQuery retrieves model from datastore by datastore query
 func (client *Client) GetByQuery(ctx context.Context, q *datastore.Query, dst interface{}) error {
-	_, err := client.GetAll(ctx, q, dst)
+	keys, err := client.GetAll(ctx, q.KeysOnly(), nil)
 	if err != nil {
 		return err
 	}
-	return nil
+	return client.GetByKeys(ctx, keys, dst)
 }
