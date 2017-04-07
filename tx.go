@@ -10,13 +10,31 @@ import (
 // Tx is the datastore transaction wrapper
 type Tx struct {
 	*datastore.Transaction
+	invalidateKeys []*datastore.PendingKey
 }
 
 // RunInTx is the RunInTransaction wrapper
 func (client *Client) RunInTx(ctx context.Context, f func(tx *Tx) error, opts ...datastore.TransactionOption) (*datastore.Commit, error) {
-	return client.RunInTransaction(ctx, func(t *datastore.Transaction) error {
-		return f(&Tx{t})
+	var tx *Tx
+	commit, err := client.RunInTransaction(ctx, func(t *datastore.Transaction) error {
+		tx = &Tx{t, nil}
+		return f(tx)
 	})
+	if err == nil && client.Cache != nil {
+		mapKey := map[string]*datastore.Key{}
+		for _, p := range tx.invalidateKeys {
+			key := commit.Key(p)
+			mapKey[key.String()] = key
+		}
+		// unique keys
+		uKeys := []*datastore.Key{}
+		for _, k := range mapKey {
+			uKeys = append(uKeys, k)
+		}
+		client.Cache.DelMulti(uKeys)
+	}
+
+	return commit, err
 }
 
 // GetByKey retrieves model from datastore by key
@@ -101,7 +119,9 @@ func (tx *Tx) GetByNames(kind string, names []string, dst interface{}) error {
 // PutModel puts a model to datastore
 func (tx *Tx) PutModel(src interface{}) (*datastore.PendingKey, error) {
 	x := src.(KeyGetSetter)
-	return tx.Put(x.GetKey(), x)
+	key, err := tx.Put(x.GetKey(), x)
+	tx.invalidateKeys = append(tx.invalidateKeys, key)
+	return key, err
 }
 
 // PutModels puts models to datastore
@@ -113,7 +133,9 @@ func (tx *Tx) PutModels(src interface{}) ([]*datastore.PendingKey, error) {
 		keys[i] = x.(KeyGetter).GetKey()
 	}
 	// TODO: store pending key inside model ?
-	return tx.PutMulti(keys, src)
+	ks, err := tx.PutMulti(keys, src)
+	tx.invalidateKeys = append(tx.invalidateKeys, ks...)
+	return ks, err
 }
 
 // SaveModel saves model to datastore
