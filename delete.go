@@ -17,11 +17,41 @@ func (client *Client) DeleteByKey(ctx context.Context, key *datastore.Key) error
 
 // DeleteByKeys deletes data from datastore by keys
 func (client *Client) DeleteByKeys(ctx context.Context, keys []*datastore.Key) error {
-	err := client.DeleteMulti(ctx, keys)
+	var err error
+	l := len(keys)
+	p := 500
+	if l > p {
+		for i := 0; i < l/p+1; i++ {
+			m := (i + 1) * p
+			if m > l {
+				m = l
+			}
+			if i*p == m {
+				break
+			}
+			e := client.DeleteMulti(ctx, keys[i*p:m])
+			if e != nil {
+				if err == nil {
+					err = e
+				} else {
+					if errs, ok := err.(datastore.MultiError); ok {
+						err = append(errs, e)
+					} else {
+						err = datastore.MultiError{err, e}
+					}
+				}
+			}
+		}
+	} else {
+		err = client.DeleteMulti(ctx, keys)
+	}
 	if client.Cache != nil {
 		client.Cache.DelMulti(keys)
 	}
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // DeleteByID deletes data from datastore by IDKey
