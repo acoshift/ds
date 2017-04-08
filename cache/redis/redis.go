@@ -68,6 +68,9 @@ func (cache *Cache) GetMulti(keys []*datastore.Key, dst interface{}) error {
 	}
 	for i := range keys {
 		b, err := redis.Bytes(db.Receive())
+		if err == redis.ErrNil {
+			continue
+		}
 		if err != nil {
 			return err
 		}
