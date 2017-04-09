@@ -24,7 +24,6 @@ func TestParseID(t *testing.T) {
 }
 
 func TestBuildIDKeys(t *testing.T) {
-	kind := "Test"
 	ids := []int64{1, 2, 3, 4, 5}
 	keys := BuildIDKeys(kind, ids)
 	for i, key := range keys {
@@ -38,7 +37,6 @@ func TestBuildIDKeys(t *testing.T) {
 }
 
 func TestBuildStringIDKeys(t *testing.T) {
-	kind := "Test"
 	ids := []string{"aa", "bb", "cccc", "123", "456"}
 	out := []int64{123, 456}
 	keys := BuildStringIDKeys(kind, ids)
@@ -56,7 +54,6 @@ func TestBuildStringIDKeys(t *testing.T) {
 }
 
 func TestBuildNameIDKeys(t *testing.T) {
-	kind := "Test"
 	ids := []string{"aa", "bb", "cccc", "123", "456"}
 	keys := BuildNameKeys(kind, ids)
 	if len(keys) != len(ids) {
@@ -74,7 +71,7 @@ func TestBuildNameIDKeys(t *testing.T) {
 
 func TestExtractKey(t *testing.T) {
 	x := &ExampleModel{}
-	x.SetID("Test", 10)
+	x.SetID(kind, 10)
 	key := ExtractKey(x)
 	if key == nil {
 		t.Fatalf("expected key not nil")
@@ -85,7 +82,7 @@ func TestExtractKeys(t *testing.T) {
 	xs := make([]*ExampleModel, 10)
 	for i := range xs {
 		xs[i] = &ExampleModel{}
-		xs[i].SetID("Test", int64(i))
+		xs[i].SetID(kind, int64(i))
 	}
 	keys := ExtractKeys(xs)
 	for i, key := range keys {
@@ -102,7 +99,7 @@ func TestExtractKeysPtr(t *testing.T) {
 	xs := make([]*ExampleModel, 10)
 	for i := range xs {
 		xs[i] = &ExampleModel{}
-		xs[i].SetID("Test", int64(i))
+		xs[i].SetID(kind, int64(i))
 	}
 	keys := ExtractKeys(&xs)
 	for i, key := range keys {

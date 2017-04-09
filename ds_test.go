@@ -5,6 +5,10 @@ import (
 	"encoding/base64"
 	"os"
 	"testing"
+	"time"
+
+	"math/rand"
+	"strconv"
 
 	"cloud.google.com/go/datastore"
 	"golang.org/x/oauth2/google"
@@ -18,8 +22,15 @@ type ExampleModel struct {
 	Value int
 }
 
+var kind string
+
+func init() {
+	rand.Seed(time.Now().Unix())
+	kind = "Test_" + strconv.Itoa(rand.Int())
+}
+
 func (x *ExampleModel) NewKey() {
-	x.NewIncomplateKey("Test", nil)
+	x.NewIncomplateKey(kind, nil)
 }
 
 type ExampleNotModel struct {
@@ -81,6 +92,6 @@ func prepareData(client *Client) []*datastore.Key {
 }
 
 func removeData(client *Client) {
-	keys, _ := client.QueryKeys(ctx, "Test")
+	keys, _ := client.QueryKeys(ctx, kind)
 	client.DeleteMulti(ctx, keys)
 }

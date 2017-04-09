@@ -19,7 +19,7 @@ func TestPutModel(t *testing.T) {
 	if err != datastore.ErrInvalidKey {
 		t.Fatalf("expected error to be %v; got %v", datastore.ErrInvalidKey, err)
 	}
-	x.SetID("Test", 99)
+	x.SetID(kind, 99)
 	err = client.PutModel(ctx, x)
 	if err != nil {
 		t.Fatal(err)
@@ -50,7 +50,7 @@ func TestPutModels(t *testing.T) {
 		t.Fatalf("expected error not nil")
 	}
 	for i, x := range xs {
-		x.SetID("Test", int64(i+100))
+		x.SetID(kind, int64(i+100))
 	}
 	err = client.PutModels(ctx, xs)
 	if err != nil {
