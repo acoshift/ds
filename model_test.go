@@ -16,15 +16,15 @@ func TestModel(t *testing.T) {
 
 	// Should not panic
 	x.SetKey(nil)
-	x.SetKey(datastore.IDKey("Test", int64(10), nil))
-	x.SetID("Test", 10)
-	x.NewIncomplateKey("Test", nil)
+	x.SetKey(datastore.IDKey(kind, int64(10), nil))
+	x.SetID(kind, 10)
+	x.NewIncomplateKey(kind, nil)
 	if x.ID() != 0 {
 		t.Fatalf("expected id to be 0")
 	}
 
 	x = &Model{}
-	x.NewIncomplateKey("Test", nil)
+	x.NewIncomplateKey(kind, nil)
 	if x.GetKey() == nil {
 		t.Fatalf("expected key not nil")
 	}
@@ -37,7 +37,7 @@ func TestModel(t *testing.T) {
 		t.Fatalf("expected id to be 0")
 	}
 
-	x.SetID("Test", 10)
+	x.SetID(kind, 10)
 	if x.GetKey() == nil {
 		t.Fatalf("expected key not nil")
 	}
@@ -54,17 +54,17 @@ func TestStringIDModel(t *testing.T) {
 
 	// Should not panic
 	x.SetKey(nil)
-	x.SetKey(datastore.IDKey("Test", int64(10), nil))
-	x.SetID("Test", 10)
-	x.SetStringID("Test", "aaa")
-	x.SetNameID("Test", "bbb")
-	x.NewIncomplateKey("Test", nil)
+	x.SetKey(datastore.IDKey(kind, int64(10), nil))
+	x.SetID(kind, 10)
+	x.SetStringID(kind, "aaa")
+	x.SetNameID(kind, "bbb")
+	x.NewIncomplateKey(kind, nil)
 	if x.ID() != "" {
 		t.Fatalf("expected id to be empty")
 	}
 
 	x = &StringIDModel{}
-	x.NewIncomplateKey("Test", nil)
+	x.NewIncomplateKey(kind, nil)
 	if x.GetKey() == nil {
 		t.Fatalf("expected key not nil")
 	}
@@ -77,7 +77,7 @@ func TestStringIDModel(t *testing.T) {
 		t.Fatalf("expected id to be empty")
 	}
 
-	x.SetID("Test", 10)
+	x.SetID(kind, 10)
 	if x.GetKey() == nil {
 		t.Fatalf("expected key not nil")
 	}
@@ -85,7 +85,7 @@ func TestStringIDModel(t *testing.T) {
 		t.Fatalf("expected id not empty")
 	}
 
-	x.SetStringID("Test", "10")
+	x.SetStringID(kind, "10")
 	if x.GetKey() == nil {
 		t.Fatalf("expected key not nil")
 	}
@@ -93,7 +93,7 @@ func TestStringIDModel(t *testing.T) {
 		t.Fatalf("expected id to be %s; got %s", "10", x.ID())
 	}
 
-	x.SetNameID("Test", "aaa")
+	x.SetNameID(kind, "aaa")
 	if x.GetKey() == nil {
 		t.Fatalf("expected key not nil")
 	}
@@ -104,7 +104,7 @@ func TestStringIDModel(t *testing.T) {
 
 func TestSetKey(t *testing.T) {
 	x := &Model{}
-	key := datastore.IDKey("Test", 1, nil)
+	key := datastore.IDKey(kind, 1, nil)
 	SetKey(nil, nil)
 	SetKey(nil, x)
 	SetKey(key, nil)
@@ -132,7 +132,7 @@ func TestSetKeys(t *testing.T) {
 	}
 	keys := make([]*datastore.Key, len(xs))
 	for i := range xs {
-		keys[i] = datastore.IDKey("Test", int64(i), nil)
+		keys[i] = datastore.IDKey(kind, int64(i), nil)
 	}
 	SetKeys(nil, nil)
 	SetKeys(keys, nil)
@@ -174,7 +174,7 @@ func TestSetIDs(t *testing.T) {
 			}
 		}
 	}
-	SetIDs("Test", ids, xs)
+	SetIDs(kind, ids, xs)
 	validate()
 
 	xs = []interface{}{
@@ -186,7 +186,7 @@ func TestSetIDs(t *testing.T) {
 		ExampleNotModel{},
 		&ExampleNotModel{},
 	}
-	SetIDs("Test", ids, &xs)
+	SetIDs(kind, ids, &xs)
 	validate()
 }
 
@@ -213,10 +213,10 @@ func TestSetStringIDs(t *testing.T) {
 			}
 		}
 	}
-	SetStringIDs("Test", ids, xs)
+	SetStringIDs(kind, ids, xs)
 	validate()
 
-	SetStringIDs("Test", ids, &xs)
+	SetStringIDs(kind, ids, &xs)
 	validate()
 }
 
@@ -243,9 +243,9 @@ func TestSetNameIDs(t *testing.T) {
 			}
 		}
 	}
-	SetNameIDs("Test", ids, xs)
+	SetNameIDs(kind, ids, xs)
 	validate()
 
-	SetNameIDs("Test", ids, &xs)
+	SetNameIDs(kind, ids, &xs)
 	validate()
 }
