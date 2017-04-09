@@ -28,7 +28,38 @@ func (client *Client) PutModels(ctx context.Context, src interface{}) error {
 		x := xs.Index(i).Interface()
 		keys[i] = x.(KeyGetter).GetKey()
 	}
-	keys, err := client.PutMulti(ctx, keys, src)
+
+	var err error
+	l := len(keys)
+	p := 500
+	if l > p {
+		ks := make([]*datastore.Key, 0, l)
+		for i := 0; i < l/p+1; i++ {
+			m := (i + 1) * p
+			if m > l {
+				m = l
+			}
+			if i*p == m {
+				break
+			}
+			k, e := client.PutMulti(ctx, keys[i*p:m], xs.Slice(i*p, m).Interface())
+			ks = append(ks, k...)
+			if e != nil {
+				if err == nil {
+					err = e
+				} else {
+					if errs, ok := err.(datastore.MultiError); ok {
+						err = append(errs, e)
+					} else {
+						err = datastore.MultiError{err, e}
+					}
+				}
+			}
+		}
+		keys = ks
+	} else {
+		keys, err = client.PutMulti(ctx, keys, src)
+	}
 	SetKeys(keys, src)
 	if client.Cache != nil {
 		client.Cache.DelMulti(keys)
