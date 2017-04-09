@@ -158,7 +158,7 @@ func SetKey(key *datastore.Key, dst interface{}) {
 
 // SetKeys sets keys to models
 func SetKeys(keys []*datastore.Key, dst interface{}) {
-	if dst == nil || keys == nil {
+	if dst == nil || len(keys) == 0 {
 		return
 	}
 	xs := valueOf(dst)
