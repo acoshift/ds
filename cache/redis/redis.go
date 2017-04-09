@@ -75,7 +75,7 @@ func (cache *Cache) GetMulti(keys []*datastore.Key, dst interface{}) error {
 			return err
 		}
 		if len(b) > 0 {
-			decode(b, reflect.Indirect(reflect.ValueOf(dst)).Index(i).Interface())
+			decode(b, reflect.Indirect(reflect.ValueOf(dst)).Index(i).Addr().Interface())
 		}
 	}
 	if cache.ExtendTTL {
