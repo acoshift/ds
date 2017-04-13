@@ -159,3 +159,23 @@ func (tx *Tx) SaveModels(src interface{}) ([]*datastore.PendingKey, error) {
 	}
 	return tx.PutModels(src)
 }
+
+// DeleteByKey deletes a model by key
+func (tx *Tx) DeleteByKey(key *datastore.Key) error {
+	err := tx.Delete(key)
+	if key != nil && !key.Incomplete() {
+		tx.invalidateKeys = append(tx.invalidateKeys, key)
+	}
+	return err
+}
+
+// DeleteByKeys deletes models by keys
+func (tx *Tx) DeleteByKeys(keys []*datastore.Key) error {
+	err := tx.DeleteMulti(keys)
+	for _, key := range keys {
+		if key != nil && !key.Incomplete() {
+			tx.invalidateKeys = append(tx.invalidateKeys, key)
+		}
+	}
+	return err
+}
